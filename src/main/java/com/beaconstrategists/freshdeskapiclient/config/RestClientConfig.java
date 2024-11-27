@@ -9,10 +9,10 @@ import java.util.Base64;
 @Configuration
 public class RestClientConfig {
 
-    @Value("${freshdesk.api.key}")
+    @Value("${FRESHDESK_API_KEY}")
     private String freshdeskApiKey;
 
-    @Value("${freshdesk.base.url}")
+    @Value("${FRESHDESK_BASE_URL")
     private String freshdeskBaseUrl;
 
     @Bean
