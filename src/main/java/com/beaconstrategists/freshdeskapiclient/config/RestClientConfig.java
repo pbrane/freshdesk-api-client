@@ -1,4 +1,5 @@
 package com.beaconstrategists.freshdeskapiclient.config;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,10 +10,11 @@ import java.util.Base64;
 @Configuration
 public class RestClientConfig {
 
-    @Value("${freshdesk.api.key}")
+    @Value("${FRESHDESK_API_KEY:0123456789ABCDEFGHI}")
     private String freshdeskApiKey;
 
-    @Value("${freshdesk.base.url}")
+    @Getter
+    @Value("${FRESHDESK_BASE_URI:https://domain.freshdesk.com/api/v2}")
     private String freshdeskBaseUrl;
 
     @Bean
@@ -26,5 +28,6 @@ public class RestClientConfig {
     private String getBase64ApiKey() {
         return Base64.getEncoder().encodeToString((freshdeskApiKey + ":X").getBytes());
     }
+
 }
 

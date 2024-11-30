@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface TicketService {
 
+    //Basic ticket functions
     List<Ticket> getTickets();
     Ticket createTicket(Ticket ticket);
     Ticket getTicket(Integer id);
