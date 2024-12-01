@@ -1,20 +1,20 @@
 {
   "name": "TAC Cases",
-  "prefix": "_1",
+  "prefix": "_3",
   "title": null,
-  "description": "Perhaps use instead of Custom Fields",
-  "version": 29,
+  "description": null,
+  "version": 25,
   "deleted": false,
-  "id": 10206984,
+  "id": 10498799,
   "form_options": {},
-  "created_time": 1732639863867,
-  "updated_time": 1732641305319,
+  "created_time": 1733012498662,
+  "updated_time": 1733013331339,
   "icon_link": "https://d2lz1e868xzctj.cloudfront.net/icons/Agent.svg",
   "fields": [
     {
-      "id": "e57bf352-979e-4a62-8fde-facae8f29ac7",
-      "name": "id",
-      "label": "ID",
+      "id": "e6eba08c-3b68-4be9-b638-45e68eccd8bf",
+      "name": "key",
+      "label": "Key",
       "type": "PRIMARY",
       "position": 1,
       "required": true,
@@ -33,7 +33,7 @@
       "choices": []
     },
     {
-      "id": "fe75ff2a-4f92-4ab0-b334-76eb257c076f",
+      "id": "862f9f22-11d7-4056-b86c-b4d8993eee8e",
       "name": "ticket",
       "label": "Ticket",
       "type": "RELATIONSHIP",
@@ -54,11 +54,11 @@
       "parent_id": null,
       "related_entity_id": 1,
       "relationship_name": "ticket",
-      "child_relationship_name": "tac_cases_1732641305004",
+      "child_relationship_name": "tac_cases_1733012730968",
       "choices": []
     },
     {
-      "id": "af89d5be-c34c-45d9-ae57-e242ac69632d",
+      "id": "d3769fb4-5496-47b9-b585-771938b766f5",
       "name": "href",
       "label": "href",
       "type": "TEXT",
@@ -72,14 +72,14 @@
       "field_options": {
         "unique": "false"
       },
-      "filterable": false,
+      "filterable": true,
       "searchable": true,
       "has_dependents": false,
       "parent_id": null,
       "choices": []
     },
     {
-      "id": "bb371b56-f28a-4e9c-bacc-9ea360401bf6",
+      "id": "27f88251-eb55-4faf-87f6-34a34c1abb3d",
       "name": "case_number",
       "label": "Case Number",
       "type": "TEXT",
@@ -100,7 +100,7 @@
       "choices": []
     },
     {
-      "id": "44d0a787-3fb1-4c18-8fe4-38d0c6e75830",
+      "id": "b7fda1b6-c305-476f-ab71-4638a28aa493",
       "name": "case_status",
       "label": "Case Status",
       "type": "DROPDOWN",
@@ -121,56 +121,56 @@
       "choices": [
         {
           "id": 1,
-          "value": "open",
+          "value": "Open",
           "position": 1,
           "dependent_ids": {}
         },
         {
           "id": 2,
-          "value": "acknowledged",
+          "value": "Acknowledged",
           "position": 2,
           "dependent_ids": {}
         },
         {
           "id": 3,
-          "value": "rejected",
+          "value": "Rejected",
           "position": 3,
           "dependent_ids": {}
         },
         {
           "id": 4,
-          "value": "pending",
+          "value": "Pending",
           "position": 4,
           "dependent_ids": {}
         },
         {
           "id": 5,
-          "value": "inprogress",
+          "value": "In Progress",
           "position": 5,
           "dependent_ids": {}
         },
         {
           "id": 6,
-          "value": "cancelled",
+          "value": "Canceled",
           "position": 6,
           "dependent_ids": {}
         },
         {
           "id": 7,
-          "value": "closed",
+          "value": "Closed",
           "position": 7,
           "dependent_ids": {}
         },
         {
           "id": 8,
-          "value": "resolved",
+          "value": "Resolved",
           "position": 8,
           "dependent_ids": {}
         }
       ]
     },
     {
-      "id": "7130fde5-11cf-4503-a6ab-4273142edd2f",
+      "id": "5e4cd228-27f6-4eaf-90e1-7214acaa886d",
       "name": "rma_needed",
       "label": "RMA Needed",
       "type": "CHECKBOX",
@@ -184,16 +184,16 @@
       "field_options": {
         "unique": "false"
       },
-      "filterable": false,
-      "searchable": false,
+      "filterable": true,
+      "searchable": true,
       "has_dependents": false,
       "parent_id": null,
       "choices": []
     },
     {
-      "id": "7f23b55b-4932-480f-b581-68b5380a0707",
-      "name": "related_rma_count",
-      "label": "Related RMA Count",
+      "id": "8ad7ea1c-d27f-4016-b239-9d1272cab960",
+      "name": "rma_count",
+      "label": "RMA Count",
       "type": "NUMBER",
       "position": 7,
       "required": false,
@@ -212,7 +212,7 @@
       "choices": []
     },
     {
-      "id": "214ebd38-75a0-454f-bb0e-18519c000693",
+      "id": "2e32b5c9-f54a-4e8d-8aa1-e2855f2a3502",
       "name": "related_dispatch_count",
       "label": "Related Dispatch Count",
       "type": "NUMBER",
@@ -233,10 +233,10 @@
       "choices": []
     },
     {
-      "id": "15678d8e-4fe4-4036-b355-1e1000f177f0",
+      "id": "402acefe-c7eb-4a2a-aa78-46ae0bacb694",
       "name": "problem_description",
       "label": "Problem Description",
-      "type": "TEXT",
+      "type": "PARAGRAPH",
       "position": 9,
       "required": false,
       "editable": true,
@@ -247,14 +247,14 @@
       "field_options": {
         "unique": "false"
       },
-      "filterable": true,
+      "filterable": false,
       "searchable": true,
       "has_dependents": false,
       "parent_id": null,
       "choices": []
     },
     {
-      "id": "741165b0-c1d7-40a0-89e0-507a88639f5f",
+      "id": "b93f40bc-38f8-405f-ac61-711ed30bb31c",
       "name": "installation_country",
       "label": "Installation Country",
       "type": "TEXT",
@@ -275,7 +275,7 @@
       "choices": []
     },
     {
-      "id": "f7eb09e9-b713-4bd0-8c8a-a51541e1b3ed",
+      "id": "785fab17-54a5-4510-b3d3-168a3549eb3c",
       "name": "first_response_date",
       "label": "First Response Date",
       "type": "DATE",
@@ -296,7 +296,7 @@
       "choices": []
     },
     {
-      "id": "e6ce7e9d-6f5c-4368-ae6d-5221c3a04731",
+      "id": "67be3224-c89f-49cb-8b72-06c76e5d8d62",
       "name": "customer_tracking_number",
       "label": "Customer Tracking Number",
       "type": "TEXT",
@@ -317,7 +317,7 @@
       "choices": []
     },
     {
-      "id": "e53eb035-0343-438d-8b17-7c32df25b43b",
+      "id": "6121e42f-9c79-4b6a-bdd5-6f1505666d53",
       "name": "contact_email",
       "label": "Contact Email",
       "type": "TEXT",
@@ -338,7 +338,7 @@
       "choices": []
     },
     {
-      "id": "64c9f176-bf68-475d-9a2b-9b967604262d",
+      "id": "367243fc-6f69-4031-80f6-7c7527b56bc0",
       "name": "product_name",
       "label": "Product Name",
       "type": "TEXT",
@@ -359,7 +359,7 @@
       "choices": []
     },
     {
-      "id": "f0507cf3-e4df-4412-b836-617112ffdb5f",
+      "id": "5fe464fc-e987-450d-95f6-4be9d2161d80",
       "name": "product_serial_number",
       "label": "Product Serial Number",
       "type": "TEXT",
@@ -380,7 +380,7 @@
       "choices": []
     },
     {
-      "id": "4b1275f3-fd3d-4cbc-b68b-cf3012eeee64",
+      "id": "c8fafda6-15f5-45ed-b37c-49ad21f8e50f",
       "name": "product_firmware_version",
       "label": "Product Firmware Version",
       "type": "TEXT",
@@ -401,7 +401,7 @@
       "choices": []
     },
     {
-      "id": "8c69e002-5fb7-4744-838c-acc39511b0b3",
+      "id": "0764732b-bcf0-42f0-99ac-191abbffc8c8",
       "name": "product_software_version",
       "label": "Product Software Version",
       "type": "TEXT",
@@ -422,10 +422,10 @@
       "choices": []
     },
     {
-      "id": "c1e744f3-db81-4aaa-88fb-76afcfcf5f90",
+      "id": "5d22a40c-30aa-4e3f-b036-ca867b8aa521",
       "name": "case_solution_description",
       "label": "Case Solution Description",
-      "type": "TEXT",
+      "type": "PARAGRAPH",
       "position": 18,
       "required": false,
       "editable": true,
@@ -436,14 +436,14 @@
       "field_options": {
         "unique": "false"
       },
-      "filterable": true,
+      "filterable": false,
       "searchable": true,
       "has_dependents": false,
       "parent_id": null,
       "choices": []
     },
     {
-      "id": "0f37b871-a5a2-43fe-a333-3b08c156e332",
+      "id": "d8574257-7564-4fbe-bf51-2c8f9f36ff3b",
       "name": "case_priority",
       "label": "Case Priority",
       "type": "DROPDOWN",
@@ -470,7 +470,7 @@
         },
         {
           "id": 2,
-          "value": "Majory",
+          "value": "Major",
           "position": 2,
           "dependent_ids": {}
         },
@@ -483,7 +483,7 @@
       ]
     },
     {
-      "id": "af877ab0-1260-4f02-9289-a5f522e289c9",
+      "id": "b4426147-e369-43c6-9769-e6d6eebd1674",
       "name": "case_create_date",
       "label": "Case Create Date",
       "type": "DATE",
@@ -504,7 +504,7 @@
       "choices": []
     },
     {
-      "id": "fcb356b0-c57a-4874-bbe7-668fdb2e9834",
+      "id": "3fbf8ff7-38c2-44c5-b60a-7975d3f291df",
       "name": "case_close_date",
       "label": "Case Close Date",
       "type": "DATE",
@@ -525,7 +525,7 @@
       "choices": []
     },
     {
-      "id": "dc2f6fe7-68cc-4705-902f-10b2f83be1d0",
+      "id": "afd797bb-07bc-44a1-bf2f-39c72a2148b1",
       "name": "business_impact",
       "label": "Business Impact",
       "type": "TEXT",
@@ -546,7 +546,7 @@
       "choices": []
     },
     {
-      "id": "2873ab66-5212-4eb5-87cb-4708056a3dbb",
+      "id": "a7e76003-0852-441e-8c27-63da465a41f3",
       "name": "account_number",
       "label": "Account Number",
       "type": "TEXT",
@@ -567,7 +567,7 @@
       "choices": []
     },
     {
-      "id": "8e7ef92e-d48d-4c53-bdac-50e68b052f91",
+      "id": "ab650dcf-e345-4d00-82f0-98cc04c57f2a",
       "name": "faulty_serial_number",
       "label": "Faulty Serial Number",
       "type": "TEXT",

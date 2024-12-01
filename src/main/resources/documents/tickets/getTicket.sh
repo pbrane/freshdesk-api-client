@@ -1,6 +1,10 @@
-#curl -v -u $FD_API_KEY:X \
-#-H "Content-Type: application/json" \
-#-X GET '$FD_BASE_URL/api/v2/tickets/4'|jq
+curl -v -u $FD_API_KEY:X \
+-H "Content-Type: application/json" \
+-X GET "$FD_BASE_URL/api/v2/tickets/4" |jq > ticket-4.json
+
+curl -v -u $FD_API_KEY:X \
+-H "Content-Type: application/json" \
+-X GET "$FD_BASE_URL/api/v2/tickets/7" |jq > ticket-7.json
 
 #This works
 #curl -v -u $FD_API_KEY:X \
@@ -23,6 +27,6 @@
 #-H "Content-Type: application/json" \
 #-X GET '$FD_BASE_URL/api/v2/search/tickets?query="(cf_business_impact:%27Huge%27)"' |jq
 
-curl -v -u $FD_API_KEY:X \
--H "Content-Type: application/json" \
--X GET '$FD_BASE_URL/api/v2/search/tickets?query="(cf_case_create_date:>%272024-11-28%27)"' |jq
+#curl -v -u $FD_API_KEY:X \
+#-H "Content-Type: application/json" \
+#-X GET '$FD_BASE_URL/api/v2/search/tickets?query="(cf_case_create_date:>%272024-11-28%27)"' |jq

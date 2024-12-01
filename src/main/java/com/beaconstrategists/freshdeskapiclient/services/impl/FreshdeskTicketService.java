@@ -2,6 +2,7 @@ package com.beaconstrategists.freshdeskapiclient.services.impl;
 
 import com.beaconstrategists.freshdeskapiclient.model.Ticket;
 import com.beaconstrategists.freshdeskapiclient.services.TicketService;
+import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseDto;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,25 @@ public class FreshdeskTicketService implements TicketService {
                 .body(ticket)
                 .retrieve()
                 .body(Ticket.class);
+    }
+
+    public TacCaseDto createTacCase(Ticket ticket, TacCaseDto tacCaseDto) {
+        Ticket body = restClient.post()
+                .uri("/tickets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ticket)
+                .retrieve()
+                .body(Ticket.class);
+
+        //fixme:
+        TacCaseDto tacCase = restClient.post()
+                .uri("custom_objects/schemas/10498799/records")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(tacCaseDto)
+                .retrieve()
+                .body(TacCaseDto.class);
+
+        return null;
     }
 
     @Override
