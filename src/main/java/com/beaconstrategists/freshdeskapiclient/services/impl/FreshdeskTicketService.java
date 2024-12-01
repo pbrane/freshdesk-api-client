@@ -1,8 +1,13 @@
 package com.beaconstrategists.freshdeskapiclient.services.impl;
 
+import com.beaconstrategists.freshdeskapiclient.model.Priority;
+import com.beaconstrategists.freshdeskapiclient.model.Status;
 import com.beaconstrategists.freshdeskapiclient.model.Ticket;
+import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
+import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
 import com.beaconstrategists.freshdeskapiclient.services.TicketService;
 import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -14,9 +19,16 @@ import java.util.List;
 public class FreshdeskTicketService implements TicketService {
 
     private final RestClient restClient;
+    private final SchemaService schemaService;
+    private final CompanyService companyService;
 
-    public FreshdeskTicketService(RestClient restClient) {
+    @Value("${FD_CUSTOMER_NAME:Microsoft}")
+    private String companyName;
+
+    public FreshdeskTicketService(RestClient restClient, SchemaService schemaService, CompanyService companyService) {
         this.restClient = restClient;
+        this.schemaService = schemaService;
+        this.companyService = companyService;
     }
 
     @Override
@@ -40,7 +52,19 @@ public class FreshdeskTicketService implements TicketService {
                 .body(Ticket.class);
     }
 
-    public TacCaseDto createTacCase(Ticket ticket, TacCaseDto tacCaseDto) {
+    public TacCaseDto createTacCase(TacCaseDto tacCaseDto) {
+
+        String companyId = companyService.getCompanyIdByName(companyName);
+
+        Ticket ticket = Ticket.builder().descriptionText(tacCaseDto.getProblemDescription())
+                .email(tacCaseDto.getContactEmail())
+                .priority(Priority.valueOf(tacCaseDto.getCasePriority().toString())) //Updated Case Priority to Match Freshdesk Default Priorities
+                .descriptionText(tacCaseDto.getProblemDescription())
+                .companyId(companyId)
+                .status(Status.valueOf(tacCaseDto.getCaseStatus().toString()))
+                .subject(tacCaseDto.getSubject())
+                .build();
+
         Ticket body = restClient.post()
                 .uri("/tickets")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -48,9 +72,9 @@ public class FreshdeskTicketService implements TicketService {
                 .retrieve()
                 .body(Ticket.class);
 
-        //fixme:
+        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
         TacCaseDto tacCase = restClient.post()
-                .uri("custom_objects/schemas/10498799/records")
+                .uri("custom_objects/schemas/"+tacCaseSchemaId+"/records")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(tacCaseDto)
                 .retrieve()

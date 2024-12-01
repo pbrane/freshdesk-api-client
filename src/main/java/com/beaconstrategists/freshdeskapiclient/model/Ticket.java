@@ -1,5 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 //trying this out
 @Data
+@Builder
 public class Ticket {
 
     /**
@@ -29,7 +31,7 @@ public class Ticket {
     /**
      * ID of the company to which this ticket belongs
      */
-    private Integer companyId;
+    private String companyId;
 
     /**
      * Key value pairs containing the names and values of custom fields.

@@ -1,38 +1,34 @@
 package com.beaconstrategists.freshdeskapiclient.services;
 
-import com.beaconstrategists.freshdeskapiclient.config.RestClientConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SchemaService {
 
-    private final RestClientConfig restClientConfig;
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final Map<String, JsonNode> schemaMap = new ConcurrentHashMap<>();
 
-    @Value("${FRESHDESK_SCHEMA_URI:/custom_objects/schemas}")
-    private String schemaUri;
-
-    public SchemaService(RestClientConfig restClientConfig, RestClient restClient, ObjectMapper objectMapper) {
-        this.restClientConfig = restClientConfig;
+    public SchemaService(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Fetches all schemas from the Freshdesk API.
+     * @return List of schemas as JsonNode objects.
+     */
     public List<JsonNode> fetchSchemas() {
-        System.out.println("\n\n\tFetching schemas...");
-        System.out.println("\tFreshDesk base URL: " + restClientConfig.getFreshdeskBaseUrl());
-        System.out.println("\tSchema URI: " + schemaUri + "\n\n\n");
-
         String response = restClient.get()
-                .uri(schemaUri)
+                .uri("/custom_objects/schemas")
                 .retrieve()
                 .body(String.class);
 
@@ -44,10 +40,28 @@ public class SchemaService {
         }
     }
 
-    public JsonNode findSchemaByName(List<JsonNode> schemas, String name) {
-        return schemas.stream()
-                .filter(schema -> name.equals(schema.get("name").asText()))
-                .findFirst()
-                .orElse(null);
+    /**
+     * Initializes the schemas by storing them in a map for easy access.
+     */
+    public void initializeSchemas() {
+        var schemas = fetchSchemas();
+        schemas.forEach(schema -> {
+            String name = schema.get("name").asText();
+            schemaMap.put(name, schema);
+        });
+    }
+
+    /**
+     * Retrieves a schema by its name.
+     *
+     * @param name The name of the schema.
+     * @return The schema as a JsonNode, or null if not found.
+     */
+    public JsonNode getSchemaByName(String name) {
+        return schemaMap.get(name);
+    }
+
+    public String getSchemaIdByName(String name) {
+        return schemaMap.get(name).get("id").asText();
     }
 }

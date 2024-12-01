@@ -1,19 +1,14 @@
-#Get Test Ticket 7
-curl -v -u "$FD_API_KEY":X \
--H "Content-Type: application/json" \
--X GET "$FD_BASE_URL/api/v2/tickets/7" |jq > ticket-7-having-attachments-notes-and-replies.json
-
-##Get Test Ticket 7 and include conversations (only supports the first 10 conversations)
+#Get Test Ticket 7 and include conversations (only supports the first 10 conversations)
 #curl -v -u "$FD_API_KEY":X \
 #-H "Content-Type: application/json" \
 #-X GET "$FD_BASE_URL/api/v2/tickets/7?include=conversations" |jq > ticket-7-having-notes-and-replies.json
 
-##List Test Ticket 7's conversation
-#curl -v -u "$FD_API_KEY":X \
-#  -H "Content-Type: application/json" \
-#  -X GET "$FD_BASE_URL/api/v2/tickets/7/conversations" |jq > ticket-7-conversation.json
+#List Test Ticket 7's conversation
+curl -v -u "$FD_API_KEY":X \
+  -H "Content-Type: application/json" \
+  -X GET "$FD_BASE_URL/api/v2/tickets/7/conversations" |jq > ticket-7-conversation.json
 
-#Get a note from the conversation of ticket 7
+##Get a note from the conversation of ticket 7 (Doesn't work: 404)
 #curl -v -u "$FD_API_KEY":X \
 #  -H "Content-Type: application/json" \
 #  -X GET "$FD_BASE_URL/api/v2/tickets/7/conversations/153075655125" #|jq
