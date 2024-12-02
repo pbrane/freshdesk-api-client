@@ -15,12 +15,12 @@ public class RestClientConfig {
 
     @Getter
     @Value("${FRESHDESK_BASE_URI:https://domain.freshdesk.com/api/v2}")
-    private String freshdeskBaseUrl;
+    private String freshdeskBaseUri;
 
     @Bean
     public RestClient restClient() {
         return RestClient.builder()
-                .baseUrl(freshdeskBaseUrl)
+                .baseUrl(freshdeskBaseUri)
                 .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
                 .build();
     }

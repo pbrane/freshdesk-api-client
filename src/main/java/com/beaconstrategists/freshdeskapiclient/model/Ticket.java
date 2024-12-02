@@ -1,15 +1,14 @@
 package com.beaconstrategists.freshdeskapiclient.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-
-//trying this out
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 public class Ticket {
 
@@ -26,7 +25,7 @@ public class Ticket {
     /**
      * Email address added in the 'cc' field of the incoming ticket email
      */
-    private List<String> ccEmails;
+    private List<String> ticketCcEmails;
 
     /**
      * ID of the company to which this ticket belongs

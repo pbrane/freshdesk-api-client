@@ -1,41 +1,4 @@
 {
-  "records": [
-    {
-      "display_id": "_3-1",
-      "created_time": 1733013774939,
-      "updated_time": 1733013774939,
-      "data": {
-        "account_number": "20-100",
-        "rma_needed": true,
-        "installation_country": "USA",
-        "product_software_version": "3.0.0",
-        "customer_tracking_number": "MSFT-23",
-        "case_priority": "Minor",
-        "rma_count": null,
-        "contact_email": "jjin@molex.com",
-        "case_close_date": null,
-        "first_response_date": "2024-11-30",
-        "faulty_serial_number": null,
-        "product_serial_number": null,
-        "case_number": null,
-        "case_create_date": "2024-11-30",
-        "href": null,
-        "key": "TAC Case Portal Repair",
-        "problem_description": "The portal has many typos",
-        "case_solution_description": null,
-        "ticket": 7,
-        "business_impact": "Narrow",
-        "related_dispatch_count": null,
-        "product_name": "Freshdesk",
-        "case_status": "Open",
-        "product_firmware_version": null
-      },
-      "version": 1
-    }
-  ],
-  "_links": {
-    "count": {
-      "href": "/schemas/10498799/records/count?ticket=7"
-    }
-  }
+  "code": "invalid_credentials",
+  "message": "You have to be logged in to perform this action."
 }

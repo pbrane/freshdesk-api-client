@@ -1,0 +1,53 @@
+{
+  "cc_emails": [],
+  "fwd_emails": [],
+  "reply_cc_emails": [],
+  "ticket_cc_emails": [],
+  "spam": false,
+  "email_config_id": null,
+  "fr_escalated": false,
+  "group_id": null,
+  "priority": 3,
+  "requester_id": 11000006030676,
+  "responder_id": 3043029172572,
+  "source": 3,
+  "status": 3,
+  "subject": "OTDR Support Needed Again",
+  "company_id": null,
+  "custom_fields": {},
+  "description": "<div>Another OTDR test ticket for me.</div>",
+  "description_text": "Another OTDR test ticket for me.",
+  "id": 11,
+  "type": "Problem",
+  "support_email": null,
+  "to_emails": null,
+  "product_id": null,
+  "attachments": [
+    {
+      "id": 11000003475655,
+      "content_type": "image/png",
+      "size": 24091,
+      "name": "bluey.png",
+      "attachment_url": "https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/11000003475655/original/bluey.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAS6FNSMY2XLZULJPI%2F20241202%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241202T170159Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=57fa1795656cef58ca355594b0e5af6213c6954bc892ad6d9f247ecd476bd5c5",
+      "created_at": "2024-12-02T17:01:58Z",
+      "updated_at": "2024-12-02T17:01:58Z"
+    },
+    {
+      "id": 11000003475656,
+      "content_type": "image/jpeg",
+      "size": 150345,
+      "name": "Bluey-Wallpaper.jpg",
+      "attachment_url": "https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/11000003475656/original/Bluey-Wallpaper.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAS6FNSMY2XLZULJPI%2F20241202%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241202T170159Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=329966e9d5ab9d317d5defb17d429f663fa2a92bb8c17b0f79a81626085d3a8f",
+      "created_at": "2024-12-02T17:01:59Z",
+      "updated_at": "2024-12-02T17:01:59Z"
+    }
+  ],
+  "is_escalated": false,
+  "tags": [],
+  "nr_escalated": false,
+  "created_at": "2024-12-02T16:03:19Z",
+  "updated_at": "2024-12-02T17:01:58Z",
+  "due_by": "2024-12-03T04:03:19Z",
+  "fr_due_by": "2024-12-02T20:03:19Z",
+  "nr_due_by": null
+}

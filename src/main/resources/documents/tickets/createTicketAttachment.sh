@@ -4,6 +4,12 @@
 #  -F "attachments[]=@./Bluey-Wallpaper.jpg" \
 #  -X PUT "$FD_BASE_URL/api/v2/tickets/7" |jq
 
+#Add two attachments to Ticket 11 in the Molex sandbox
+curl -v -u "$FD_API_KEY":X \
+  -F "attachments[]=@./bluey.png" \
+  -F "attachments[]=@./Bluey-Wallpaper.jpg" \
+  -X PUT "$FD_BASE_URL/api/v2/tickets/11" |jq > sandbox_ticket_11_add_attachments.json
+
 ## This creates a new ticket with two attachments
 #curl -v -u "$FD_API_KEY":X \
 #  -F "attachments[]=@./Bluey-Wallpaper.jpg" \

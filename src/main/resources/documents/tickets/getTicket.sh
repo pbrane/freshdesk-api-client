@@ -1,7 +1,12 @@
-#Get Test Ticket 7
+#Get Test Ticket 10 from Molex Sandbox
 curl -v -u "$FD_API_KEY":X \
 -H "Content-Type: application/json" \
--X GET "$FD_BASE_URL/api/v2/tickets/7" |jq > ticket-7-having-attachments-notes-and-replies.json
+-X GET "$FD_BASE_URL/api/v2/tickets/10" |jq > ticket-10-molex-sandbox.json
+
+##Get Test Ticket 7
+#curl -v -u "$FD_API_KEY":X \
+#-H "Content-Type: application/json" \
+#-X GET "$FD_BASE_URL/api/v2/tickets/7" |jq > ticket-7-having-attachments-notes-and-replies.json
 
 ##Get Test Ticket 7 and include conversations (only supports the first 10 conversations)
 #curl -v -u "$FD_API_KEY":X \
