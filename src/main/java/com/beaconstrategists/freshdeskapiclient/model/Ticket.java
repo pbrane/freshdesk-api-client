@@ -120,7 +120,7 @@ public class Ticket {
     /**
      * Priority of the ticket
      */
-    private Priority priority;
+    private PriorityForTickets priorityForTickets;
 
     /**
      * ID of the product to which the ticket is associated
@@ -156,7 +156,7 @@ public class Ticket {
     /**
      * Status of the ticket
      */
-    private Status status;
+    private StatusForTickets statusForTickets;
 
     /**
      * Subject of the ticket

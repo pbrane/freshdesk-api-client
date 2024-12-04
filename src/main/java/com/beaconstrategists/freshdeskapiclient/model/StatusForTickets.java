@@ -2,17 +2,15 @@ package com.beaconstrategists.freshdeskapiclient.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Source {
-    Email(1),
-    Portal(2),
-    Phone(3),
-    Chat(7),
-    Feedback_Widget(9),
-    Outbound_Email(10);
+public enum StatusForTickets {
+    Open(2),
+    Pending(3),
+    Resolved(4),
+    Closed(5);
 
     private final int value;
 
-    Source(int value) {
+    StatusForTickets(int value) {
         this.value = value;
     }
 

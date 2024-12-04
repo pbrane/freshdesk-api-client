@@ -28,6 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <jackson.version>2.18.2</jackson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -50,9 +51,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version> <!-- Ensure it matches your Jackson version -->
+        </dependency>
+        <dependency>
             <groupId>com.beaconstrategists</groupId>
             <artifactId>tac-case-api-service-monolith</artifactId>
-            <version>0.1.8-SNAPSHOT</version>
+            <version>0.1.9-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

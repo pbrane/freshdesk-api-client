@@ -1,12 +1,13 @@
 package com.beaconstrategists.freshdeskapiclient.services.impl;
 
-import com.beaconstrategists.freshdeskapiclient.model.Priority;
-import com.beaconstrategists.freshdeskapiclient.model.Status;
+import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
+import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
 import com.beaconstrategists.freshdeskapiclient.model.Ticket;
 import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
 import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
 import com.beaconstrategists.freshdeskapiclient.services.TicketService;
 import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseDto;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class FreshdeskTicketService implements TicketService {
     @Value("${FD_CUSTOMER_NAME:Microsoft}")
     private String companyName;
 
-    public FreshdeskTicketService(RestClient restClient, SchemaService schemaService, CompanyService companyService) {
+    public FreshdeskTicketService(@Qualifier("snakeCaseRestClient") RestClient restClient, SchemaService schemaService, CompanyService companyService) {
         this.restClient = restClient;
         this.schemaService = schemaService;
         this.companyService = companyService;
@@ -58,10 +59,10 @@ public class FreshdeskTicketService implements TicketService {
 
         Ticket ticket = Ticket.builder().descriptionText(tacCaseDto.getProblemDescription())
                 .email(tacCaseDto.getContactEmail())
-                .priority(Priority.valueOf(tacCaseDto.getCasePriority().toString())) //Updated Case Priority to Match Freshdesk Default Priorities
+                .priorityForTickets(PriorityForTickets.valueOf(tacCaseDto.getCasePriority().toString())) //Updated Case Priority to Match Freshdesk Default Priorities
                 .descriptionText(tacCaseDto.getProblemDescription())
                 .companyId(companyId)
-                .status(Status.valueOf(tacCaseDto.getCaseStatus().toString()))
+                .statusForTickets(StatusForTickets.valueOf(tacCaseDto.getCaseStatus().toString()))
                 .subject(tacCaseDto.getSubject())
                 .build();
 

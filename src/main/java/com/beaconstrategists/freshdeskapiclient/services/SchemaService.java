@@ -1,11 +1,12 @@
 package com.beaconstrategists.freshdeskapiclient.services;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,30 +15,31 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SchemaService {
 
     private final RestClient restClient;
-    private final ObjectMapper objectMapper;
     private final Map<String, JsonNode> schemaMap = new ConcurrentHashMap<>();
 
-    public SchemaService(RestClient restClient, ObjectMapper objectMapper) {
+    public SchemaService(@Qualifier("camelCaseRestClient") RestClient restClient) {
         this.restClient = restClient;
-        this.objectMapper = objectMapper;
     }
 
     /**
      * Fetches all schemas from the Freshdesk API.
+     * The API response contains a `schemas` key that holds the list of schemas.
+     *
      * @return List of schemas as JsonNode objects.
      */
     public List<JsonNode> fetchSchemas() {
-        String response = restClient.get()
+        JsonNode response = restClient.get()
                 .uri("/custom_objects/schemas")
                 .retrieve()
-                .body(String.class);
+                .body(JsonNode.class);
 
-        try {
-            JsonNode rootNode = objectMapper.readTree(response);
-            return objectMapper.convertValue(rootNode.get("schemas"), new TypeReference<List<JsonNode>>() {});
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse schemas response", e);
+        // Extract the `schemas` array from the response JSON
+        List<JsonNode> schemas = new ArrayList<>();
+        assert response != null;
+        if (response.has("schemas")) {
+            response.get("schemas").forEach(schemas::add);
         }
+        return schemas;
     }
 
     /**
@@ -61,7 +63,14 @@ public class SchemaService {
         return schemaMap.get(name);
     }
 
+    /**
+     * Retrieves the ID of a schema by its name.
+     *
+     * @param name The name of the schema.
+     * @return The ID of the schema as a String, or null if not found.
+     */
     public String getSchemaIdByName(String name) {
-        return schemaMap.get(name).get("id").asText();
+        JsonNode schema = schemaMap.get(name);
+        return schema != null ? schema.get("id").asText() : null;
     }
 }

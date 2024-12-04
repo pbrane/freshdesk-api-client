@@ -1,27 +1,68 @@
 package com.beaconstrategists.freshdeskapiclient.config;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 @Configuration
 public class RestClientConfig {
 
-    @Value("${FRESHDESK_API_KEY:0123456789ABCDEFGHI}")
+    @Value("${FD_API_KEY:0123456789ABCDEFGHI}")
     private String freshdeskApiKey;
 
     @Getter
-    @Value("${FRESHDESK_BASE_URI:https://domain.freshdesk.com/api/v2}")
+    @Value("${FD_BASE_URI:https://domain.freshdesk.com/api/v2}")
     private String freshdeskBaseUri;
 
+    public RestClientConfig() {
+    }
+
     @Bean
-    public RestClient restClient() {
+    @Primary
+    @Qualifier("snakeCaseRestClient")
+    public RestClient snakeCaserestClient(@Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {
+        // Create custom JSON message converter
+        MappingJackson2HttpMessageConverter messageConverter =
+                new MappingJackson2HttpMessageConverter(snakeCaseObjectMapper);
+
+        // Configure converters for RestClient
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(messageConverter);
+
+        // Build and return the RestClient
         return RestClient.builder()
                 .baseUrl(freshdeskBaseUri)
                 .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
+                .messageConverters(converters)
+                .build();
+    }
+
+    @Bean
+    @Qualifier("camelCaseRestClient")
+    public RestClient camelCaserestClient(@Qualifier("camelCaseObjectMapper") ObjectMapper camelCaseObjectMapper) {
+        // Create custom JSON message converter
+        MappingJackson2HttpMessageConverter messageConverter =
+                new MappingJackson2HttpMessageConverter(camelCaseObjectMapper);
+
+        // Configure converters for RestClient
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(messageConverter);
+
+        // Build and return the RestClient
+        return RestClient.builder()
+                .baseUrl(freshdeskBaseUri)
+                .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
+                .messageConverters(converters)
                 .build();
     }
 

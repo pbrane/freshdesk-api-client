@@ -3,9 +3,11 @@ package com.beaconstrategists.freshdeskapiclient.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,22 +19,21 @@ public class CompanyService {
     private final ObjectMapper objectMapper;
     private final Map<String, String> companyMap = new ConcurrentHashMap<>();
 
-    public CompanyService(RestClient restClient, ObjectMapper objectMapper) {
+    public CompanyService(@Qualifier("camelCaseRestClient") RestClient restClient, @Qualifier("camelCaseObjectMapper") ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
     public List<JsonNode> fetchCompanies() {
-        String response = restClient.get()
+        JsonNode response = restClient.get()
                 .uri("/companies")
                 .retrieve()
-                .body(String.class);
+                .body(JsonNode.class);
 
-        try {
-            return objectMapper.readValue(response, new TypeReference<List<JsonNode>>() {});
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse companies response", e);
-        }
+        List<JsonNode> companies = new ArrayList<>();
+        assert response != null;
+        response.forEach(companies::add);
+        return companies;
     }
 
     public void initializeCompanies() {

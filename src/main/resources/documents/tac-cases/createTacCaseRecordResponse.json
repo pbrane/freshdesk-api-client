@@ -1,0 +1,28 @@
+{
+  "display_id": "_2-11",
+  "created_time": 1733327390263,
+  "updated_time": 1733327390263,
+  "data": {
+    "problem_description": "Always Freshdesk is the problem. :)",
+    "case_solution_description": null,
+    "account_number": null,
+    "rma_needed": true,
+    "ticket": null,
+    "installation_country": null,
+    "customer_tracking_number": null,
+    "business_impact": null,
+    "product_name": "OTDR",
+    "case_priority": null,
+    "related_dispatch_count": null,
+    "contact_email": null,
+    "case_close_date": null,
+    "first_response_date": null,
+    "case_status": "Open",
+    "faulty_serial_number": null,
+    "product_serial_number": null,
+    "case_create_date": "2024-12-03",
+    "product_firmware_version": null,
+    "key": "ID:"
+  },
+  "version": 1
+}

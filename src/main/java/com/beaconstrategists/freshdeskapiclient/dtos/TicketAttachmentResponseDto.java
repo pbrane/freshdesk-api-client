@@ -8,11 +8,11 @@ import java.time.OffsetDateTime;
 @Value
 @Builder
 public class TicketAttachmentResponseDto {
-    public Long id;
-    public String contentType;
-    public Long size;
-    public String name;
-    public String attachmentUrl;
-    public OffsetDateTime createdAt;
-    public OffsetDateTime updatedAt;
+     Long id;
+     String contentType;
+     Long size;
+     String name;
+     String attachmentUrl;
+     OffsetDateTime createdAt;
+     OffsetDateTime updatedAt;
 }

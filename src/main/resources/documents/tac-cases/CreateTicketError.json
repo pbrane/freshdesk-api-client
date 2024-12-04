@@ -1,0 +1,65 @@
+{
+  "description": "Validation failed",
+  "errors": [
+    {
+      "field": "status",
+      "message": "It should be one of these values: '2,3,4,5'",
+      "code": "invalid_value"
+    },
+    {
+      "field": "priority",
+      "message": "It should be one of these values: '1,2,3,4'",
+      "code": "invalid_value"
+    },
+    {
+      "field": "internal_group_id",
+      "message": "The shared_ownership feature is required to support internal_group_id attribute in the request",
+      "code": "inaccessible_field"
+    },
+    {
+      "field": "internal_agent_id",
+      "message": "The shared_ownership feature is required to support internal_agent_id attribute in the request",
+      "code": "inaccessible_field"
+    },
+    {
+      "field": "source",
+      "message": "It should be one of these values: '1,2,3,5,6,7,9,11'",
+      "code": "invalid_value"
+    },
+    {
+      "field": "parent_id",
+      "message": "The parent_child_infra feature is required to support parent_id attribute in the request",
+      "code": "inaccessible_field"
+    },
+    {
+      "field": "attachments",
+      "message": "It should not be blank as this is a mandatory field",
+      "code": "invalid_value"
+    },
+    {
+      "field": "cc_emails",
+      "message": "Value set is of type Null.It should be a/an Array",
+      "code": "datatype_mismatch"
+    },
+    {
+      "field": "tags",
+      "message": "Value set is of type Null.It should be a/an Array",
+      "code": "datatype_mismatch"
+    },
+    {
+      "field": "custom_fields",
+      "message": "Value set is of type Null.It should be a/an key/value pair",
+      "code": "datatype_mismatch"
+    },
+    {
+      "field": "unique_external_id",
+      "message": "Value set is of type Null.It should be a/an String",
+      "code": "datatype_mismatch"
+    },
+    {
+      "field": "responder_id",
+      "message": "Value set is of type Null.It should be a/an Positive Integer",
+      "code": "datatype_mismatch"
+    }
+  ]
+}
