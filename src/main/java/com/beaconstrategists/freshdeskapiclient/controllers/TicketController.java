@@ -2,12 +2,14 @@ package com.beaconstrategists.freshdeskapiclient.controllers;
 
 import com.beaconstrategists.freshdeskapiclient.model.Ticket;
 import com.beaconstrategists.freshdeskapiclient.services.TicketService;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseDto;
+import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseCreateDto;
+import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseResponseDto;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -25,9 +27,14 @@ public class TicketController {
 
     @PostMapping("/tacCases")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    TacCaseDto createTacCase(@RequestBody TacCaseDto tacCaseDto) {
-        TacCaseDto response = tacCaseService.save(tacCaseDto);
+    TacCaseResponseDto createTacCase(@RequestBody TacCaseCreateDto dto) {
+        TacCaseResponseDto response = tacCaseService.save(dto);
         return response;
+    }
+
+    @GetMapping("/tacCases/{id}")
+    Optional<TacCaseResponseDto> getTacCase(@PathVariable Long id) {
+        return tacCaseService.findById(id);
     }
 
     @PostMapping("/tickets")

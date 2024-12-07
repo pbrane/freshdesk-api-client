@@ -52,163 +52,70 @@ public class FreshDeskCaseService implements TacCaseService {
         this.objectMapper = objectMapper;
     }
 
-    public TacCaseDto save(TacCaseDto tacCaseDto) {
+    //fixme: should rename to create in parent class
+    public TacCaseResponseDto save(TacCaseCreateDto tacCaseCreateDto) {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
 
-        String json = null;
+        TicketCreateDto dto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
 
-        if (tacCaseDto.getId() == null) {
-            //POST with TicketCreateDto containing the ID
-            TicketCreateDto dto = buildCreateTicket(tacCaseDto, defaultResponderId);
+        //fixme: get rid of this debugging
+        debugObjectMappingOfDto(dto);
 
-            try {
-                json = objectMapper.writeValueAsString(dto);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+        TicketResponseDto ticket = createTicket(dto);
+        assert ticket != null;  //fixme: what happens here if null
 
-            System.out.println("Serialized JSON: " + json);
+        TicketTacCaseDto ticketTacCaseDto = buildTicketTacCaseDto(tacCaseCreateDto, ticket);
+        TacCaseRequest tacCaseRequest = new TacCaseRequest(ticketTacCaseDto);
 
-            TicketResponseDto ticket = restClient.post()
-                    .uri("/tickets")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(dto)
-                    .retrieve()
-                    .body(TicketResponseDto.class);
+        //fixme: get rid of this debugging
+        debugObjectMappingOfRequest(tacCaseRequest);
 
-            assert ticket != null;
-            TicketTacCaseDto ticketTacCaseDto = buildTicketTacCaseDto(tacCaseDto, ticket);
-            TacCaseRequest tacCaseRequest = new TacCaseRequest(ticketTacCaseDto);
+        TacCaseResponse responseTacCase = restClient.post()
+                .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(tacCaseRequest)
+                .retrieve()
+                .body(TacCaseResponse.class);
+        assert responseTacCase != null;
 
-            try {
-                json = objectMapper.writeValueAsString(tacCaseRequest);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Serialized JSON: " + json);
+        TacCaseResponseDto response = mapToTacCaseDto(responseTacCase, ticket);
+        return response;
 
-            TacCaseResponse responseTacCase = restClient.post()
-                    .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(tacCaseRequest)
-                    .retrieve()
-                    .body(TacCaseResponse.class);
-            assert responseTacCase != null;
-            TacCaseDto response = mapToTacCaseDto(responseTacCase, ticket);
-            return response;
+    }
 
-        } else {
-            //PUT with a TicketDto containing the ID
+    private void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(tacCaseRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        System.out.println("Serialized JSON: " + json);
+    }
+
+
+    @Override
+    public TacCaseResponseDto update(Long id, TacCaseUpdateDto tacCaseUpdateDto) {
         return null;
-
-    }
-
-    private static TacCaseDto mapToTacCaseDto(TacCaseResponse tacCaseResponse, TicketResponseDto ticket) {
-        TicketTacCaseDto data = tacCaseResponse.getData();
-
-        TacCaseDto tacCaseDto = new TacCaseDto();
-        tacCaseDto.setId(ticket.getId()); // Extract ID
-        tacCaseDto.setProblemDescription(data.getProblemDescription());
-        tacCaseDto.setCaseSolutionDescription(data.getCaseSolutionDescription());
-        tacCaseDto.setAccountNumber(data.getAccountNumber());
-        tacCaseDto.setRmaNeeded(data.getRmaNeeded());
-        tacCaseDto.setInstallationCountry(data.getInstallationCountry());
-        tacCaseDto.setCustomerTrackingNumber(data.getCustomerTrackingNumber());
-        tacCaseDto.setBusinessImpact(data.getBusinessImpact());
-        tacCaseDto.setProductName(data.getProductName());
-        tacCaseDto.setCasePriority(mapPriority(data.getCasePriority()));
-        tacCaseDto.setRelatedDispatchCount(data.getRelatedDispatchCount());
-        tacCaseDto.setContactEmail(data.getContactEmail());
-        tacCaseDto.setCaseClosedDate(safeOffsetDateTime(data.getCaseCloseDate()));
-        tacCaseDto.setFirstResponseDate(safeOffsetDateTime(data.getFirstResponseDate()));
-        tacCaseDto.setCaseStatus(mapStatus(data.getCaseStatus()));
-        tacCaseDto.setFaultySerialNumber(data.getFaultySerialNumber());
-        tacCaseDto.setProductSerialNumber(data.getProductSerialNumber());
-        tacCaseDto.setCaseCreatedDate(safeOffsetDateTime(data.getCaseCreateDate()));
-        tacCaseDto.setProductFirmwareVersion(data.getProductFirmwareVersion());
-
-        return tacCaseDto;
-    }
-
-    private static OffsetDateTime safeOffsetDateTime(Object dateValue) {
-        if (dateValue == null) {
-            return null;
-        }
-        if (dateValue instanceof OffsetDateTime) {
-            return (OffsetDateTime) dateValue;
-        }
-        if (dateValue instanceof LocalDate) {
-            // Convert LocalDate to OffsetDateTime at the start of the day in UTC
-            return ((LocalDate) dateValue).atStartOfDay().atOffset(ZoneOffset.UTC);
-        }
-        if (dateValue instanceof String) {
-            // Try parsing the string as a date
-            try {
-                return OffsetDateTime.parse((String) dateValue);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Cannot parse date string: " + dateValue, e);
-            }
-        }
-        throw new IllegalArgumentException("Unexpected date type: " + dateValue.getClass());
-    }
-
-    private static TicketTacCaseDto buildTicketTacCaseDto(TacCaseDto tacCaseDto, TicketResponseDto ticket) {
-        return TicketTacCaseDto.builder()
-//                .casePriorityForTickets(Optional.ofNullable(tacCaseDto.getCasePriority())
-//                        .map(CasePriorityEnum::getValue)  // Get the string value from CasePriorityEnum
-//                        .map(PriorityForTickets::fromString)        // Map to Priority
-//                        .orElse(null))
-                .casePriority(Optional.ofNullable(tacCaseDto.getCasePriority())
-                        .map(CasePriorityEnum::getValue)
-                        .map(PriorityForCustomObjects::valueOf)
-                        .orElse(null))
-                .caseStatus(Optional.ofNullable(tacCaseDto.getCaseStatus())
-                        .map(CaseStatus::getValue)          // Get the string value from CaseStatus
-                        .map(StatusForCustomObjects::valueOf)              // Map to Status
-                        .orElse(null))
-                .accountNumber(tacCaseDto.getAccountNumber())
-                .businessImpact(tacCaseDto.getBusinessImpact())
-                .caseCloseDate(Optional.ofNullable(tacCaseDto.getCaseClosedDate())
-                        .map(OffsetDateTime::toLocalDate)
-                        .orElse(null))
-                .caseCreateDate(Optional.ofNullable(tacCaseDto.getCaseCreatedDate())
-                        .map(OffsetDateTime::toLocalDate)
-                        .orElse(null))
-                .caseSolutionDescription(tacCaseDto.getCaseSolutionDescription())
-                .contactEmail(tacCaseDto.getContactEmail())
-                .key("ID: " + ticket.getId() + "; " + tacCaseDto.getSubject())
-                .ticket(ticket.getId())
-                .customerTrackingNumber(tacCaseDto.getCustomerTrackingNumber())
-                .faultySerialNumber(tacCaseDto.getFaultySerialNumber())
-                .firstResponseDate(Optional.ofNullable(tacCaseDto.getFirstResponseDate())
-                        .map(OffsetDateTime::toLocalDate)
-                        .orElse(null))
-                .installationCountry(tacCaseDto.getInstallationCountry())
-                .problemDescription(tacCaseDto.getProblemDescription())
-                .productFirmwareVersion(tacCaseDto.getProductFirmwareVersion())
-                .productName(tacCaseDto.getProductName())
-                .productSerialNumber(Optional.ofNullable(tacCaseDto.getProductSerialNumber())
-                        .map(Object::toString)
-                        .orElse(null))
-                .relatedDispatchCount(tacCaseDto.getRelatedDispatchCount())
-                .rmaNeeded(Optional.ofNullable(tacCaseDto.getRmaNeeded())
-                        .orElse(false))
-                .build();
     }
 
     @Override
-    public List<TacCaseDto> findAll() {
+    public TacCaseResponseDto save(TacCaseResponseDto tacCaseResponseDto) {
+        return null;
+    }
+
+    @Override
+    public List<TacCaseResponseDto> findAll() {
         return List.of();
     }
 
     @Override
-    public Optional<TacCaseDto> findById(Long id) {
+    public Optional<TacCaseResponseDto> findById(Long id) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<TacCaseDto> findByCaseNumber(String caseNumber) {
+    public Optional<TacCaseResponseDto> findByCaseNumber(String caseNumber) {
         return Optional.empty();
     }
 
@@ -223,12 +130,12 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     @Override
-    public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
+    public TacCaseResponseDto partialUpdate(Long id, TacCaseResponseDto tacCaseResponseDto) {
         return null;
     }
 
     @Override
-    public TacCaseDto partialUpdate(String caseNumber, TacCaseDto tacCaseDto) {
+    public TacCaseResponseDto partialUpdate(String caseNumber, TacCaseResponseDto tacCaseResponseDto) {
         return null;
     }
 
@@ -298,27 +205,27 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     @Override
-    public List<TacCaseDto> listTacCases(OffsetDateTime caseCreateDateFrom, OffsetDateTime caseCreateDateTo, OffsetDateTime caseCreateDateSince, List<CaseStatus> caseStatus, String logic) {
+    public List<TacCaseResponseDto> listTacCases(OffsetDateTime caseCreateDateFrom, OffsetDateTime caseCreateDateTo, OffsetDateTime caseCreateDateSince, List<CaseStatus> caseStatus, String logic) {
         return List.of();
     }
 
     @Override
-    public List<RmaCaseDto> listRmaCases(Long id) {
+    public List<RmaCaseResponseDto> listRmaCases(Long id) {
         return List.of();
     }
 
     //Helper methods
 
-    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
+/*    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
         if (customPriority == null) {
             return null;
         }
 
         return switch (customPriority) {
-            case Low -> CasePriorityEnum.LOW;
-            case Medium -> CasePriorityEnum.MEDIUM;
-            case High -> CasePriorityEnum.HIGH;
-            case Urgent -> CasePriorityEnum.URGENT;
+            case Low -> CasePriorityEnum.Low;
+            case Medium -> CasePriorityEnum.Medium;
+            case High -> CasePriorityEnum.High;
+            case Urgent -> CasePriorityEnum.Urgent;
             default -> throw new IllegalArgumentException("Unknown priority: " + customPriority);
         };
     }
@@ -329,15 +236,26 @@ public class FreshDeskCaseService implements TacCaseService {
         }
 
         return switch (status) {
-            case Open -> CaseStatus.OPEN;
-            case Closed -> CaseStatus.CLOSED;
-            case Pending -> CaseStatus.PENDING;
-            case Resolved -> CaseStatus.RESOLVED;
+            case Open -> CaseStatus.Open;
+            case Closed -> CaseStatus.Closed;
+            case Pending -> CaseStatus.Pending;
+            case Resolved -> CaseStatus.Resolved;
             default -> throw new IllegalArgumentException("Unknown status: " + status);
         };
-    }
+    }*/
 
-    private static TicketCreateDto buildCreateTicket(TacCaseDto tacCaseDto, String responderId) {
+    private static TicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
+
+        PriorityForTickets priorityForTickets = PriorityForTickets.valueOf(tacCaseDto.getCasePriority().getValue());
+        System.out.println("Priority For Tickets: " + priorityForTickets);
+
+        priorityForTickets = Optional.ofNullable(tacCaseDto.getCasePriority())
+                .map(CasePriorityEnum::getValue)
+                .map(PriorityForTickets::valueOf)
+                .orElse(null);
+
+        System.out.println("Priority For Tickets: " + priorityForTickets);
+
 
         TicketCreateDto ticketDto = TicketCreateDto.builder()
                 .email(tacCaseDto.getContactEmail())
@@ -345,11 +263,14 @@ public class FreshDeskCaseService implements TacCaseService {
                 .responderId(Long.valueOf(responderId))
                 .type("Problem")
                 .source(Source.Email) //fixme
+                .status(StatusForTickets.Open)
+/*
                 .status(StatusForTickets.valueOf(tacCaseDto.getCaseStatus().toString())) //fixme
                 .status(Optional.ofNullable(tacCaseDto.getCaseStatus())
                         .map(CaseStatus::getValue)
                         .map(StatusForTickets::valueOf)
                         .orElse(null))
+*/
                 .priority(Optional.ofNullable(tacCaseDto.getCasePriority())
                         .map(CasePriorityEnum::getValue)
                         .map(PriorityForTickets::valueOf)
@@ -358,7 +279,111 @@ public class FreshDeskCaseService implements TacCaseService {
                 .build();
         return ticketDto;
     }
-    private static TicketUpdateDto buildUpdateTicket(TacCaseDto tacCaseDto) {
+
+    private TicketResponseDto createTicket(TicketCreateDto dto) {
+        TicketResponseDto ticket = restClient.post()
+                .uri("/tickets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto)
+                .retrieve()
+                .body(TicketResponseDto.class);
+        return ticket;
+    }
+
+    private void debugObjectMappingOfDto(TicketCreateDto dto) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Serialized JSON: " + json);
+    }
+
+    //fixme: this is probably going to now have to be done with ModelMapper
+    private static TacCaseResponseDto mapToTacCaseDto(TacCaseResponse tacCaseResponse, TicketResponseDto ticket) {
+        TicketTacCaseDto data = tacCaseResponse.getData();
+
+        TacCaseResponseDto tacCaseDto = new TacCaseResponseDto();
+        tacCaseDto.setId(ticket.getId()); // Extract ID
+        tacCaseDto.setProblemDescription(data.getProblemDescription());
+        tacCaseDto.setCaseSolutionDescription(data.getCaseSolutionDescription());
+        tacCaseDto.setAccountNumber(data.getAccountNumber());
+        tacCaseDto.setRmaNeeded(data.getRmaNeeded());
+        tacCaseDto.setInstallationCountry(data.getInstallationCountry());
+        tacCaseDto.setCustomerTrackingNumber(data.getCustomerTrackingNumber());
+        tacCaseDto.setBusinessImpact(data.getBusinessImpact());
+        tacCaseDto.setProductName(data.getProductName());
+        tacCaseDto.setCasePriority(data.getCasePriority());
+        tacCaseDto.setRelatedDispatchCount(data.getRelatedDispatchCount());
+        tacCaseDto.setContactEmail(data.getContactEmail());
+        tacCaseDto.setCaseClosedDate(safeOffsetDateTime(data.getCaseCloseDate()));
+        tacCaseDto.setFirstResponseDate(safeOffsetDateTime(data.getFirstResponseDate()));
+        tacCaseDto.setCaseStatus(data.getCaseStatus());
+        tacCaseDto.setFaultySerialNumber(data.getFaultySerialNumber());
+        tacCaseDto.setProductSerialNumber(data.getProductSerialNumber());
+        tacCaseDto.setCaseCreatedDate(safeOffsetDateTime(data.getCaseCreateDate()));
+        tacCaseDto.setProductFirmwareVersion(data.getProductFirmwareVersion());
+
+        return tacCaseDto;
+    }
+
+    private static OffsetDateTime safeOffsetDateTime(Object dateValue) {
+        if (dateValue == null) {
+            return null;
+        }
+        if (dateValue instanceof OffsetDateTime) {
+            return (OffsetDateTime) dateValue;
+        }
+        if (dateValue instanceof LocalDate) {
+            // Convert LocalDate to OffsetDateTime at the start of the day in UTC
+            return ((LocalDate) dateValue).atStartOfDay().atOffset(ZoneOffset.UTC);
+        }
+        if (dateValue instanceof String) {
+            // Try parsing the string as a date
+            try {
+                return OffsetDateTime.parse((String) dateValue);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Cannot parse date string: " + dateValue, e);
+            }
+        }
+        throw new IllegalArgumentException("Unexpected date type: " + dateValue.getClass());
+    }
+
+    //fixme: should use ModelMapper for this
+    private static TicketTacCaseDto buildTicketTacCaseDto(TacCaseCreateDto tacCaseDto, TicketResponseDto ticket) {
+        return TicketTacCaseDto.builder()
+                .casePriority(tacCaseDto.getCasePriority())
+                .caseStatus(null)
+                .accountNumber(null)
+                .businessImpact(tacCaseDto.getBusinessImpact())
+                .caseCloseDate(null) //fixme: this should be caseClosedDate (..ed..)
+                .caseCreateDate(null) //fixme: this is supposed to be caseCreatedDate (..ed..)
+                .caseSolutionDescription(null)
+                .contactEmail(tacCaseDto.getContactEmail())
+                .key("ID: " + ticket.getId() + "; " + tacCaseDto.getSubject())
+                .ticket(ticket.getId())
+                .customerTrackingNumber(tacCaseDto.getCustomerTrackingNumber())
+                .faultySerialNumber(null)
+                .firstResponseDate(null)
+                .installationCountry(tacCaseDto.getInstallationCountry())
+                .problemDescription(tacCaseDto.getProblemDescription())
+                .productFirmwareVersion(tacCaseDto.getProductFirmwareVersion())
+                .productName(tacCaseDto.getProductName())
+                .productSerialNumber(Optional.ofNullable(tacCaseDto.getProductSerialNumber())
+                        .map(Object::toString)
+                        .orElse(null))
+//                .relatedDispatchCount(tacCaseDto.getRelatedDispatchCount()) //fixme: this should be deleted from schema
+/*
+                .rmaNeeded(Optional.ofNullable(tacCaseDto.getRmaNeeded())
+                        .orElse(false))
+*/
+                .relatedDispatchCount(null)
+                .rmaNeeded(null)
+                .build();
+    }
+
+    private static TicketUpdateDto buildUpdateTicket(Long id, TacCaseUpdateDto tacCaseDto) {
         return TicketUpdateDto.builder()
                 .email(tacCaseDto.getContactEmail())
                 .subject(tacCaseDto.getSubject())
@@ -368,7 +393,7 @@ public class FreshDeskCaseService implements TacCaseService {
                 .statusForTickets(StatusForTickets.valueOf(tacCaseDto.getCaseStatus().toString())) //fixme: verify this
                 .priorityForTickets(PriorityForTickets.valueOf(tacCaseDto.getCasePriority().toString()))
                 .description(tacCaseDto.getProblemDescription())
-                .id(tacCaseDto.getId())
+                .id(id)
                 .build();
     }
 

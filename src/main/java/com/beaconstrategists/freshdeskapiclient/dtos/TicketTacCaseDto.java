@@ -1,11 +1,12 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.freshdeskapiclient.model.PriorityForCustomObjects;
-import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
-import com.beaconstrategists.freshdeskapiclient.model.StatusForCustomObjects;
-import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
+import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
+import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -14,6 +15,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+//fixme: should probably be renamed to TicketTacCaseResponseDto and mirror the service API DTO
+//fixme: or jus wrap the service's DTO and add key or use ModelMapper
 public class TicketTacCaseDto {
 
 //    @JsonProperty("problem_description")
@@ -47,7 +50,7 @@ public class TicketTacCaseDto {
     private String productName;
 
 //    @JsonProperty("case_priority")
-    private PriorityForCustomObjects casePriority;
+    private CasePriorityEnum casePriority;
 
 //    @JsonProperty("contact_email")
     private String contactEmail;
@@ -59,7 +62,7 @@ public class TicketTacCaseDto {
     private LocalDate firstResponseDate; // Use String or LocalDateTime based on format
 
 //    @JsonProperty("case_status")
-    private StatusForCustomObjects caseStatus;
+    private CaseStatus caseStatus;
 //    TicketTacTacCaseStatus caseStatus;
 
 //    @JsonProperty("faulty_serial_number")
