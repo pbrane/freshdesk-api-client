@@ -53,13 +53,13 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     //fixme: should rename to create in parent class
-    public TacCaseResponseDto save(TacCaseCreateDto tacCaseCreateDto) {
+    public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
 
         TicketCreateDto dto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
 
         //fixme: get rid of this debugging
-        debugObjectMappingOfDto(dto);
+        debugObjectMappingOfDto(dto, objectMapper);
 
         TicketResponseDto ticket = createTicket(dto);
         assert ticket != null;  //fixme: what happens here if null
@@ -68,7 +68,7 @@ public class FreshDeskCaseService implements TacCaseService {
         TacCaseRequest tacCaseRequest = new TacCaseRequest(ticketTacCaseDto);
 
         //fixme: get rid of this debugging
-        debugObjectMappingOfRequest(tacCaseRequest);
+        debugObjectMappingOfRequest(tacCaseRequest, objectMapper);
 
         TacCaseResponse responseTacCase = restClient.post()
                 .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
@@ -82,17 +82,6 @@ public class FreshDeskCaseService implements TacCaseService {
         return response;
 
     }
-
-    private void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest) {
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(tacCaseRequest);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Serialized JSON: " + json);
-    }
-
 
     @Override
     public TacCaseResponseDto update(Long id, TacCaseUpdateDto tacCaseUpdateDto) {
@@ -148,6 +137,33 @@ public class FreshDeskCaseService implements TacCaseService {
     public void delete(String caseNumber) {
 
     }
+
+    /*
+     * Add attachments to an existing ticket
+     * fixme: this should be addAttachment perhaps?
+     */
+    public TicketResponseDto addAttachments(Long ticketId, List<TicketAttachmentUploadDto> attachments) {
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        attachments.forEach(attachment -> {
+            bodyBuilder.part("attachments[]", attachment.getFile().getResource())
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "form-data; name=\"attachments[]\"; filename=\"" + attachment.getFile().getOriginalFilename() + "\"");
+        });
+
+        MultiValueMap<String, HttpEntity<?>> multipartBody = bodyBuilder.build();
+
+        try {
+            return restClient.put()
+                    .uri("/tickets/{ticketId}", ticketId)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(multipartBody)
+                    .retrieve()
+                    .body(TicketResponseDto.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Error adding attachments to ticket: " + e.getMessage(), e);
+        }
+    }
+
 
     @Override
     public TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException {
@@ -214,35 +230,14 @@ public class FreshDeskCaseService implements TacCaseService {
         return List.of();
     }
 
-    //Helper methods
 
-/*    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
-        if (customPriority == null) {
-            return null;
-        }
 
-        return switch (customPriority) {
-            case Low -> CasePriorityEnum.Low;
-            case Medium -> CasePriorityEnum.Medium;
-            case High -> CasePriorityEnum.High;
-            case Urgent -> CasePriorityEnum.Urgent;
-            default -> throw new IllegalArgumentException("Unknown priority: " + customPriority);
-        };
-    }
 
-    public static CaseStatus mapStatus(StatusForCustomObjects status) {
-        if (status == null) {
-            return null;
-        }
 
-        return switch (status) {
-            case Open -> CaseStatus.Open;
-            case Closed -> CaseStatus.Closed;
-            case Pending -> CaseStatus.Pending;
-            case Resolved -> CaseStatus.Resolved;
-            default -> throw new IllegalArgumentException("Unknown status: " + status);
-        };
-    }*/
+
+    /*
+    Helper Methods
+     */
 
     private static TicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
 
@@ -256,22 +251,14 @@ public class FreshDeskCaseService implements TacCaseService {
 
         System.out.println("Priority For Tickets: " + priorityForTickets);
 
-
         TicketCreateDto ticketDto = TicketCreateDto.builder()
                 .email(tacCaseDto.getContactEmail())
                 .subject(tacCaseDto.getSubject())
                 .responderId(Long.valueOf(responderId))
                 .type("Problem")
-                .source(Source.Email) //fixme
+                .source(Source.Email) //fixme ?
                 .status(StatusForTickets.Open)
-/*
-                .status(StatusForTickets.valueOf(tacCaseDto.getCaseStatus().toString())) //fixme
-                .status(Optional.ofNullable(tacCaseDto.getCaseStatus())
-                        .map(CaseStatus::getValue)
-                        .map(StatusForTickets::valueOf)
-                        .orElse(null))
-*/
-                .priority(Optional.ofNullable(tacCaseDto.getCasePriority())
+                .priority(Optional.ofNullable(tacCaseDto.getCasePriority()) //fixme?
                         .map(CasePriorityEnum::getValue)
                         .map(PriorityForTickets::valueOf)
                         .orElse(null))
@@ -280,7 +267,7 @@ public class FreshDeskCaseService implements TacCaseService {
         return ticketDto;
     }
 
-    private TicketResponseDto createTicket(TicketCreateDto dto) {
+    private static TicketResponseDto createTicket(TicketCreateDto dto, RestClient restClient) {
         TicketResponseDto ticket = restClient.post()
                 .uri("/tickets")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -290,7 +277,7 @@ public class FreshDeskCaseService implements TacCaseService {
         return ticket;
     }
 
-    private void debugObjectMappingOfDto(TicketCreateDto dto) {
+    private static void debugObjectMappingOfDto(TicketCreateDto dto, ObjectMapper objectMapper) {
         String json;
         try {
             json = objectMapper.writeValueAsString(dto);
@@ -397,28 +384,45 @@ public class FreshDeskCaseService implements TacCaseService {
                 .build();
     }
 
-    /*
-     * Add attachments to an existing ticket
-     */
-    public TicketResponseDto addAttachments(Long ticketId, List<TicketAttachmentUploadDto> attachments) {
-        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-        attachments.forEach(attachment -> {
-            bodyBuilder.part("attachments[]", attachment.getFile().getResource())
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "form-data; name=\"attachments[]\"; filename=\"" + attachment.getFile().getOriginalFilename() + "\"");
-        });
-
-        MultiValueMap<String, HttpEntity<?>> multipartBody = bodyBuilder.build();
-
+    private static void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest, ObjectMapper objectMapper) {
+        String json;
         try {
-            return restClient.put()
-                    .uri("/tickets/{ticketId}", ticketId)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .body(multipartBody)
-                    .retrieve()
-                    .body(TicketResponseDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error adding attachments to ticket: " + e.getMessage(), e);
+            json = objectMapper.writeValueAsString(tacCaseRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        System.out.println("Serialized JSON: " + json);
     }
+
+    //Helper methods
+
+/*    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
+        if (customPriority == null) {
+            return null;
+        }
+
+        return switch (customPriority) {
+            case Low -> CasePriorityEnum.Low;
+            case Medium -> CasePriorityEnum.Medium;
+            case High -> CasePriorityEnum.High;
+            case Urgent -> CasePriorityEnum.Urgent;
+            default -> throw new IllegalArgumentException("Unknown priority: " + customPriority);
+        };
+    }
+
+    public static CaseStatus mapStatus(StatusForCustomObjects status) {
+        if (status == null) {
+            return null;
+        }
+
+        return switch (status) {
+            case Open -> CaseStatus.Open;
+            case Closed -> CaseStatus.Closed;
+            case Pending -> CaseStatus.Pending;
+            case Resolved -> CaseStatus.Resolved;
+            default -> throw new IllegalArgumentException("Unknown status: " + status);
+        };
+    }*/
+
+
 }
