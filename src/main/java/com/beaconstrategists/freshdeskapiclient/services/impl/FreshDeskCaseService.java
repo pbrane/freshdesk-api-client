@@ -52,44 +52,27 @@ public class FreshDeskCaseService implements TacCaseService {
         this.objectMapper = objectMapper;
     }
 
-    //fixme: should rename to create in parent class
+    
     public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
 
         TicketCreateDto dto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
 
-        //fixme: get rid of this debugging
-        debugObjectMappingOfDto(dto, objectMapper);
-
-        TicketResponseDto ticket = createTicket(dto);
+        TicketResponseDto ticket = createTicket(dto, restClient);
         assert ticket != null;  //fixme: what happens here if null
 
         TicketTacCaseDto ticketTacCaseDto = buildTicketTacCaseDto(tacCaseCreateDto, ticket);
         TacCaseRequest tacCaseRequest = new TacCaseRequest(ticketTacCaseDto);
 
-        //fixme: get rid of this debugging
-        debugObjectMappingOfRequest(tacCaseRequest, objectMapper);
+        TacCaseResponse responseTacCase = createTacCase(tacCaseSchemaId, tacCaseRequest, restClient);
 
-        TacCaseResponse responseTacCase = restClient.post()
-                .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(tacCaseRequest)
-                .retrieve()
-                .body(TacCaseResponse.class);
-        assert responseTacCase != null;
-
-        TacCaseResponseDto response = mapToTacCaseDto(responseTacCase, ticket);
-        return response;
+        TacCaseResponseDto tacCaseResponseDto = mapToTacCaseDto(responseTacCase, ticket);
+        return tacCaseResponseDto;
 
     }
 
     @Override
     public TacCaseResponseDto update(Long id, TacCaseUpdateDto tacCaseUpdateDto) {
-        return null;
-    }
-
-    @Override
-    public TacCaseResponseDto save(TacCaseResponseDto tacCaseResponseDto) {
         return null;
     }
 
@@ -104,11 +87,6 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     @Override
-    public Optional<TacCaseResponseDto> findByCaseNumber(String caseNumber) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean exists(Long id) {
         return false;
     }
@@ -119,22 +97,7 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     @Override
-    public TacCaseResponseDto partialUpdate(Long id, TacCaseResponseDto tacCaseResponseDto) {
-        return null;
-    }
-
-    @Override
-    public TacCaseResponseDto partialUpdate(String caseNumber, TacCaseResponseDto tacCaseResponseDto) {
-        return null;
-    }
-
-    @Override
     public void delete(Long id) {
-
-    }
-
-    @Override
-    public void delete(String caseNumber) {
 
     }
 
@@ -239,6 +202,17 @@ public class FreshDeskCaseService implements TacCaseService {
     Helper Methods
      */
 
+    private static TacCaseResponse createTacCase(String tacCaseSchemaId, TacCaseRequest tacCaseRequest, RestClient restClient) {
+        TacCaseResponse responseTacCase = restClient.post()
+                .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(tacCaseRequest)
+                .retrieve()
+                .body(TacCaseResponse.class);
+        assert responseTacCase != null;
+        return responseTacCase;
+    }
+
     private static TicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
 
         PriorityForTickets priorityForTickets = PriorityForTickets.valueOf(tacCaseDto.getCasePriority().getValue());
@@ -276,7 +250,17 @@ public class FreshDeskCaseService implements TacCaseService {
                 .body(TicketResponseDto.class);
         return ticket;
     }
-
+    
+    private static void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest, ObjectMapper objectMapper) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(tacCaseRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Serialized JSON: " + json);
+    }
+    
     private static void debugObjectMappingOfDto(TicketCreateDto dto, ObjectMapper objectMapper) {
         String json;
         try {
@@ -292,6 +276,7 @@ public class FreshDeskCaseService implements TacCaseService {
         TicketTacCaseDto data = tacCaseResponse.getData();
 
         TacCaseResponseDto tacCaseDto = new TacCaseResponseDto();
+        tacCaseDto.setSubject(ticket.getSubject());
         tacCaseDto.setId(ticket.getId()); // Extract ID
         tacCaseDto.setProblemDescription(data.getProblemDescription());
         tacCaseDto.setCaseSolutionDescription(data.getCaseSolutionDescription());
@@ -383,19 +368,7 @@ public class FreshDeskCaseService implements TacCaseService {
                 .id(id)
                 .build();
     }
-
-    private static void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest, ObjectMapper objectMapper) {
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(tacCaseRequest);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Serialized JSON: " + json);
-    }
-
-    //Helper methods
-
+    
 /*    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
         if (customPriority == null) {
             return null;
@@ -422,7 +395,7 @@ public class FreshDeskCaseService implements TacCaseService {
             case Resolved -> CaseStatus.Resolved;
             default -> throw new IllegalArgumentException("Unknown status: " + status);
         };
-    }*/
-
-
+    }
+*/
+    
 }

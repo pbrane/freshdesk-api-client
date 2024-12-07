@@ -28,8 +28,7 @@ public class TicketController {
     @PostMapping("/tacCases")
     @ResponseStatus(HttpStatus.ACCEPTED)
     TacCaseResponseDto createTacCase(@RequestBody TacCaseCreateDto dto) {
-        TacCaseResponseDto response = tacCaseService.save(dto);
-        return response;
+        return tacCaseService.create(dto);
     }
 
     @GetMapping("/tacCases/{id}")
