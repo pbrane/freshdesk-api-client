@@ -32,7 +32,6 @@ import java.util.Optional;
 public class FreshDeskCaseService implements TacCaseService {
 
     private final RestClient restClient;
-    private final SchemaService schemaService;
     private final CompanyService companyService;
     private final ObjectMapper objectMapper;
 
@@ -42,19 +41,21 @@ public class FreshDeskCaseService implements TacCaseService {
     @Value("${FD_DEFAULT_RESPONDER_ID:3043029172572}")
     private String defaultResponderId;
 
+    private final String tacCaseSchemaId;
+
     public FreshDeskCaseService(@Qualifier("snakeCaseRestClient") RestClient restClient,
                                 SchemaService schemaService,
                                 CompanyService companyService,
                                 @Qualifier("snakeCaseObjectMapper") ObjectMapper objectMapper) {
+
         this.restClient = restClient;
-        this.schemaService = schemaService;
         this.companyService = companyService;
         this.objectMapper = objectMapper;
+        this.tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
     }
 
     
     public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
-        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
 
         TicketCreateDto dto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
 
@@ -66,13 +67,17 @@ public class FreshDeskCaseService implements TacCaseService {
 
         TacCaseResponse responseTacCase = createTacCase(tacCaseSchemaId, tacCaseRequest, restClient);
 
-        TacCaseResponseDto tacCaseResponseDto = mapToTacCaseDto(responseTacCase, ticket);
-        return tacCaseResponseDto;
+        return mapToTacCaseDto(responseTacCase, ticket);
 
     }
 
     @Override
     public TacCaseResponseDto update(Long id, TacCaseUpdateDto tacCaseUpdateDto) {
+
+        //first fetch the existing ticket ??
+        //this is where ModelMapper is needed... skip nulls
+
+
         return null;
     }
 
@@ -216,16 +221,14 @@ public class FreshDeskCaseService implements TacCaseService {
     private static TicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
 
         PriorityForTickets priorityForTickets = PriorityForTickets.valueOf(tacCaseDto.getCasePriority().getValue());
-        System.out.println("Priority For Tickets: " + priorityForTickets);
 
         priorityForTickets = Optional.ofNullable(tacCaseDto.getCasePriority())
                 .map(CasePriorityEnum::getValue)
                 .map(PriorityForTickets::valueOf)
                 .orElse(null);
 
-        System.out.println("Priority For Tickets: " + priorityForTickets);
-
-        TicketCreateDto ticketDto = TicketCreateDto.builder()
+        //fixme?
+        return TicketCreateDto.builder()
                 .email(tacCaseDto.getContactEmail())
                 .subject(tacCaseDto.getSubject())
                 .responderId(Long.valueOf(responderId))
@@ -238,17 +241,15 @@ public class FreshDeskCaseService implements TacCaseService {
                         .orElse(null))
                 .description(tacCaseDto.getProblemDescription())
                 .build();
-        return ticketDto;
     }
 
     private static TicketResponseDto createTicket(TicketCreateDto dto, RestClient restClient) {
-        TicketResponseDto ticket = restClient.post()
+        return restClient.post()
                 .uri("/tickets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(dto)
                 .retrieve()
                 .body(TicketResponseDto.class);
-        return ticket;
     }
     
     private static void debugObjectMappingOfRequest(TacCaseRequest tacCaseRequest, ObjectMapper objectMapper) {
@@ -301,22 +302,28 @@ public class FreshDeskCaseService implements TacCaseService {
     }
 
     private static OffsetDateTime safeOffsetDateTime(Object dateValue) {
-        if (dateValue == null) {
-            return null;
-        }
-        if (dateValue instanceof OffsetDateTime) {
-            return (OffsetDateTime) dateValue;
-        }
-        if (dateValue instanceof LocalDate) {
-            // Convert LocalDate to OffsetDateTime at the start of the day in UTC
-            return ((LocalDate) dateValue).atStartOfDay().atOffset(ZoneOffset.UTC);
-        }
-        if (dateValue instanceof String) {
-            // Try parsing the string as a date
-            try {
-                return OffsetDateTime.parse((String) dateValue);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Cannot parse date string: " + dateValue, e);
+        switch (dateValue) {
+            case null -> {
+                return null;
+            }
+            case OffsetDateTime offsetDateTime -> {
+                return offsetDateTime;
+            }
+            case LocalDate localDate -> {
+                // Convert LocalDate to OffsetDateTime at the start of the day in UTC
+                return localDate.atStartOfDay().atOffset(ZoneOffset.UTC);
+                // Convert LocalDate to OffsetDateTime at the start of the day in UTC
+            }
+            case String s -> {
+                // Try parsing the string as a date
+                try {
+                    return OffsetDateTime.parse((String) dateValue);
+                } catch (DateTimeParseException e) {
+                    throw new IllegalArgumentException("Cannot parse date string: " + dateValue, e);
+                }
+                // Try parsing the string as a date
+            }
+            default -> {
             }
         }
         throw new IllegalArgumentException("Unexpected date type: " + dateValue.getClass());
