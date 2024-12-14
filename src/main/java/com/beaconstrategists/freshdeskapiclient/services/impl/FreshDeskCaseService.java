@@ -11,7 +11,6 @@ import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -36,10 +35,6 @@ public class FreshDeskCaseService implements TacCaseService {
     private final RestClient restClient;
     private final CompanyService companyService;
 
-    //fixme: make a method for using this if needed for debugging
-    //fixme: or Shell Commands, etc.
-    private final ObjectMapper objectMapper;
-
     private final GenericMapper genericMapper;
 
     @Value("${FD_CUSTOMER_NAME:Microsoft}")
@@ -53,16 +48,14 @@ public class FreshDeskCaseService implements TacCaseService {
     public FreshDeskCaseService(@Qualifier("snakeCaseRestClient") RestClient restClient,
                                 SchemaService schemaService,
                                 CompanyService companyService,
-                                @Qualifier("snakeCaseObjectMapper") ObjectMapper objectMapper, GenericMapper genericMapper) {
+                                GenericMapper genericMapper) {
 
         this.restClient = restClient;
         this.companyService = companyService;
-        this.objectMapper = objectMapper;
         this.genericMapper = genericMapper;
         this.schemaService = schemaService;
     }
 
-    
     public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
 
         FreshdeskTicketCreateDto freshdeskTicketCreateDto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
@@ -77,13 +70,6 @@ public class FreshDeskCaseService implements TacCaseService {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
         FreshdeskTacCaseResponse freshdeskTacCaseResponse = saveFreshdeskTacCase(tacCaseSchemaId, freshdeskTacCaseRequest, restClient);
 
-        //fixme: should we be using model mapper?
-        //fixme: try new generic mapper at some point!
-        //return mapToTacCaseDto(freshdeskTacCaseResponse, freshdeskTicketResponseDto);
-
-        //fixme: should find a way to use the API version of this
-        //fixme: and add the extra bits needed for the custom object
-        //fixme: in freshdesk
         FreshdeskTacCaseDto data = freshdeskTacCaseResponse.getData();
         TacCaseResponseDto responseDto = genericMapper.map(data, TacCaseResponseDto.class);
         responseDto.setSubject(freshdeskTicketResponseDto.getSubject());
@@ -99,12 +85,6 @@ public class FreshDeskCaseService implements TacCaseService {
         I have to do the same thing here in the mappings for the ticket
         that I had to do for the TacCase.
          */
-
-
-        //build a TicketupdateDto based on the user specified fields in the TacCaseUpdateDto
-        ObjectNode ticket = objectMapper.createObjectNode();
-        //ticket.put();
-
 
         TicketUpdateDto.TicketUpdateDtoBuilder builder = TicketUpdateDto.builder();
 
@@ -316,73 +296,6 @@ public class FreshDeskCaseService implements TacCaseService {
         System.out.println("Serialized JSON: " + json);
     }
     
-    private static void debugObjectMappingOfDto(FreshdeskTicketCreateDto dto, ObjectMapper objectMapper) {
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Serialized JSON: " + json);
-    }
-
-    //fixme: this is probably going to now have to be done with ModelMapper
-    private static TacCaseResponseDto mapToTacCaseDto(FreshdeskTacCaseResponse freshdeskTacCaseResponse, FreshdeskTicketResponseDto ticket) {
-        FreshdeskTacCaseDto data = freshdeskTacCaseResponse.getData();
-
-        TacCaseResponseDto tacCaseDto = new TacCaseResponseDto();
-        tacCaseDto.setSubject(ticket.getSubject());
-        tacCaseDto.setId(ticket.getId()); // Extract ID
-        tacCaseDto.setProblemDescription(data.getProblemDescription());
-        tacCaseDto.setCaseSolutionDescription(data.getCaseSolutionDescription());
-        tacCaseDto.setAccountNumber(data.getAccountNumber());
-        tacCaseDto.setRmaNeeded(data.getRmaNeeded());
-        tacCaseDto.setInstallationCountry(data.getInstallationCountry());
-        tacCaseDto.setCustomerTrackingNumber(data.getCustomerTrackingNumber());
-        tacCaseDto.setBusinessImpact(data.getBusinessImpact());
-        tacCaseDto.setProductName(data.getProductName());
-        tacCaseDto.setCasePriority(data.getCasePriority());
-        tacCaseDto.setRelatedDispatchCount(data.getRelatedDispatchCount());
-        tacCaseDto.setContactEmail(data.getContactEmail());
-        tacCaseDto.setCaseClosedDate(safeOffsetDateTime(data.getCaseClosedDate()));
-        tacCaseDto.setFirstResponseDate(safeOffsetDateTime(data.getFirstResponseDate()));
-        tacCaseDto.setCaseStatus(data.getCaseStatus());
-        tacCaseDto.setFaultySerialNumber(data.getFaultySerialNumber());
-        tacCaseDto.setProductSerialNumber(data.getProductSerialNumber());
-        tacCaseDto.setCaseCreatedDate(safeOffsetDateTime(data.getCaseCreatedDate()));
-        tacCaseDto.setProductFirmwareVersion(data.getProductFirmwareVersion());
-
-        return tacCaseDto;
-    }
-
-    private static OffsetDateTime safeOffsetDateTime(Object dateValue) {
-        switch (dateValue) {
-            case null -> {
-                return null;
-            }
-            case OffsetDateTime offsetDateTime -> {
-                return offsetDateTime;
-            }
-            case LocalDate localDate -> {
-                // Convert LocalDate to OffsetDateTime at the start of the day in UTC
-                return localDate.atStartOfDay().atOffset(ZoneOffset.UTC);
-                // Convert LocalDate to OffsetDateTime at the start of the day in UTC
-            }
-            case String s -> {
-                // Try parsing the string as a date
-                try {
-                    return OffsetDateTime.parse((String) dateValue);
-                } catch (DateTimeParseException e) {
-                    throw new IllegalArgumentException("Cannot parse date string: " + dateValue, e);
-                }
-                // Try parsing the string as a date
-            }
-            default -> {
-            }
-        }
-        throw new IllegalArgumentException("Unexpected date type: " + dateValue.getClass());
-    }
-
     //fixme: should use Generic ModelMapper for this
     private static FreshdeskTacCaseDto buildFreshdeskTacCaseCreateDto(TacCaseCreateDto tacCaseDto, FreshdeskTicketResponseDto ticket) {
         return FreshdeskTacCaseDto.builder()
@@ -423,34 +336,5 @@ public class FreshDeskCaseService implements TacCaseService {
                 .id(id)
                 .build();
     }
-    
-/*    public static CasePriorityEnum mapPriority(PriorityForCustomObjects customPriority) {
-        if (customPriority == null) {
-            return null;
-        }
-
-        return switch (customPriority) {
-            case Low -> CasePriorityEnum.Low;
-            case Medium -> CasePriorityEnum.Medium;
-            case High -> CasePriorityEnum.High;
-            case Urgent -> CasePriorityEnum.Urgent;
-            default -> throw new IllegalArgumentException("Unknown priority: " + customPriority);
-        };
-    }
-
-    public static CaseStatus mapStatus(StatusForCustomObjects status) {
-        if (status == null) {
-            return null;
-        }
-
-        return switch (status) {
-            case Open -> CaseStatus.Open;
-            case Closed -> CaseStatus.Closed;
-            case Pending -> CaseStatus.Pending;
-            case Resolved -> CaseStatus.Resolved;
-            default -> throw new IllegalArgumentException("Unknown status: " + status);
-        };
-    }
-*/
     
 }
