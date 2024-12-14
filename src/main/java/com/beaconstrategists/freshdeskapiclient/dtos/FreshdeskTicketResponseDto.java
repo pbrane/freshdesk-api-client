@@ -16,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TicketResponseDto {
+public class FreshdeskTicketResponseDto {
      @JsonProperty("cc_emails")
      private List<String> ccEmails;
 

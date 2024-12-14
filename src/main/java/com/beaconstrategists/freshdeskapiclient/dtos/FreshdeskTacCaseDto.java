@@ -17,7 +17,9 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 //fixme: should probably be renamed to TicketTacCaseResponseDto and mirror the service API DTO
 //fixme: or jus wrap the service's DTO and add key or use ModelMapper
-public class TicketTacCaseDto {
+public class FreshdeskTacCaseDto {
+
+    private String subject;
 
 //    @JsonProperty("problem_description")
     private String problemDescription;
@@ -56,7 +58,7 @@ public class TicketTacCaseDto {
     private String contactEmail;
 
 //    @JsonProperty("case_close_date")
-    private LocalDate caseCloseDate; // Use String or LocalDateTime based on format
+    private LocalDate caseClosedDate; // Use String or LocalDateTime based on format
 
 //    @JsonProperty("first_response_date")
     private LocalDate firstResponseDate; // Use String or LocalDateTime based on format
@@ -75,7 +77,7 @@ public class TicketTacCaseDto {
     private String productFirmwareVersion;
 
 //    @JsonProperty("case_create_date")
-    private LocalDate caseCreateDate; // Use String or LocalDateTime based on format
+    private LocalDate caseCreatedDate; // Use String or LocalDateTime based on format
 
 //    @JsonProperty("key")
     private String key;

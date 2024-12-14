@@ -74,13 +74,13 @@ public class TicketUpdateDto {
     Status of the ticket.
     The default Value is 2.
      */
-     StatusForTickets statusForTickets;
+     StatusForTickets status;
 
     /*
     Priority of the ticket.
     The default value is 1.
      */
-     PriorityForTickets priorityForTickets;
+     PriorityForTickets priority;
 
     /*
     HTML content of the ticket.
@@ -92,18 +92,18 @@ public class TicketUpdateDto {
      */
      Long responderId;
 
-    /*
-    Ticket attachments.
-    The total size of these attachments cannot exceed 20MB.
-     */
-     List<Object> attachments; // = new ArrayList<>();
-
-    /*
-    Email address added in the 'cc' field of the incoming ticket email.
-     */
-    List<String> ccEmails;
-
-    List<Object> customFields; // = new ArrayList<>();
+//    /*
+//    Ticket attachments.
+//    The total size of these attachments cannot exceed 20MB.
+//     */
+//     List<Object> attachments; // = new ArrayList<>();
+//
+//    /*
+//    Email address added in the 'cc' field of the incoming ticket email.
+//     */
+//    List<String> ccEmails;
+//
+//    List<Object> customFields; // = new ArrayList<>();
 
     /*
     Timestamp that denotes when the ticket is due to be resolved.
@@ -127,11 +127,11 @@ public class TicketUpdateDto {
      */
      Long groupId;
 
-    /*
-    ID of the parent ticket that this ticket should be linked to.
-    When passing this field, the current ticket actioned upon will be converted to a child ticket.
-     */
-     Long parentId;
+//    /*
+//    ID of the parent ticket that this ticket should be linked to.
+//    When passing this field, the current ticket actioned upon will be converted to a child ticket.
+//     */
+//     Long parentId;
 
     /*
     ID of the product to which the ticket is associated.
@@ -144,10 +144,10 @@ public class TicketUpdateDto {
      */
      Source source;
 
-    /*
-    Tags that have been associated with the ticket
-     */
-     List<String> tags; //= new ArrayList<>();
+//    /*
+//    Tags that have been associated with the ticket
+//     */
+//     List<String> tags; //= new ArrayList<>();
 
     /*
     Company ID of the requester.
@@ -155,15 +155,15 @@ public class TicketUpdateDto {
      */
      Long companyId;
 
-    /*
-    ID of the internal agent which the ticket should be assigned with.
-     */
-     Long internalAgentId;
-
-    /*
-    ID of the internal group to which the ticket should be assigned with.
-     */
-     Long internalGroupId;
+//    /*
+//    ID of the internal agent which the ticket should be assigned with.
+//     */
+//     Long internalAgentId;
+//
+//    /*
+//    ID of the internal group to which the ticket should be assigned with.
+//     */
+//     Long internalGroupId;
 
     /*
     This attribute for tickets can only be set if Custom Objects is enabled
@@ -172,9 +172,8 @@ public class TicketUpdateDto {
     The value can either be in the form of the display_id (record id)
     or primary_field_value (user defined record value).
 
-    The default value is display_id.
-     */
-     String lookupParameter;
-
+//    The default value is display_id.
+//     */
+//     String lookupParameter;
 
 }

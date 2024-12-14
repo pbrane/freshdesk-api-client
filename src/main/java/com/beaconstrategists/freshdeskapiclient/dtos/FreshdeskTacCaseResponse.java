@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class TacCaseResponse {
+public class FreshdeskTacCaseResponse {
 
     @JsonProperty("display_id")
     private String displayId;
@@ -16,7 +16,7 @@ public class TacCaseResponse {
     private Long updatedTime;
 
     @JsonProperty("data")
-    private TicketTacCaseDto data;
+    private FreshdeskTacCaseDto data;
 
     @JsonProperty("version")
     private int version;

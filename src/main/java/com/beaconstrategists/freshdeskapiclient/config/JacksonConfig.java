@@ -17,24 +17,12 @@ public class JacksonConfig {
     @Primary
     public ObjectMapper camelCaseObjectMapper() {
         // Default ObjectMapper for camelCase (used globally)
-        return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .findAndRegisterModules();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        //objectMapper.findAndRegisterModules();
+        return objectMapper;
     }
-
-
-/*
-    @Bean
-    @Qualifier("snakeCaseObjectMapper")
-    public ObjectMapper snakeCaseObjectMapper() {
-        // Configure ObjectMapper for snake_case
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-                .registerModule(new JavaTimeModule())
-                .findAndRegisterModules();
-        return mapper;
-    }
-*/
 
     @Bean
     @Qualifier("snakeCaseObjectMapper")

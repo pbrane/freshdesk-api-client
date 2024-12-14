@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class TacCaseRequest {
+public class FreshdeskTacCaseRequest {
 
     @JsonProperty("data")
-    private TicketTacCaseDto data;
+    private FreshdeskTacCaseDto data;
 
-    public TacCaseRequest(TicketTacCaseDto data) {
+    public FreshdeskTacCaseRequest(FreshdeskTacCaseDto data) {
         this.data = data;
     }
 }

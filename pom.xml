@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.beaconstrategists</groupId>
     <artifactId>freshdesk-api-client</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>Freshdesk API Client</name>
     <description>Freshdesk API Client</description>
     <url/>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.beaconstrategists</groupId>
             <artifactId>tac-case-api-service-monolith</artifactId>
-            <version>0.1.10-SNAPSHOT</version>
+            <version>0.1.13-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

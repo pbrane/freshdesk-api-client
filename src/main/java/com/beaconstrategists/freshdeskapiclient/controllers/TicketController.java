@@ -1,14 +1,12 @@
 package com.beaconstrategists.freshdeskapiclient.controllers;
 
-import com.beaconstrategists.freshdeskapiclient.model.Ticket;
-import com.beaconstrategists.freshdeskapiclient.services.TicketService;
 import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseCreateDto;
 import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseResponseDto;
+import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseUpdateDto;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -17,11 +15,9 @@ import java.util.Optional;
 public class TicketController {
 
 
-    private final TicketService ticketService;
     private final TacCaseService tacCaseService;
 
-    public TicketController(TicketService ticketService, TacCaseService tacCaseService) {
-        this.ticketService = ticketService;
+    public TicketController(TacCaseService tacCaseService) {
         this.tacCaseService = tacCaseService;
     }
 
@@ -36,30 +32,46 @@ public class TicketController {
         return tacCaseService.findById(id);
     }
 
+    @PutMapping("/tacCases/{id}")
+    TacCaseResponseDto updateTacCase(@PathVariable Long id, @RequestBody TacCaseUpdateDto dto) {
+        return tacCaseService.update(id, dto);
+    }
+
+
+/*
     @PostMapping("/tickets")
     @ResponseStatus(HttpStatus.CREATED)
     Ticket createTicket(@RequestBody Ticket ticket) {
         return ticketService.createTicket(ticket);
     }
+*/
 
+/*
     @GetMapping("/tickets")
     List<Ticket> getTickets() {
         return ticketService.getTickets();
     }
+*/
 
+/*
     @GetMapping("/tickets/{id}")
     Ticket getTicket(@PathVariable Integer id) {
         return ticketService.getTicket(id);
     }
+*/
 
+/*
     @PutMapping("/tickets/{id}")
     Ticket updateTicket(@PathVariable Integer id, @RequestBody Ticket ticket) {
         return ticketService.updateTicket(id, ticket);
     }
+*/
 
+/*
     @DeleteMapping("/tickets/{id}")
     void deleteTicket(@PathVariable Integer id) {
         ticketService.deleteTicket(id);
     }
+*/
 
 }

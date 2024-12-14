@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 
 @Value
 @Builder
-public class TicketCreateDto {
+public class FreshdeskTicketCreateDto {
 
     /*
     ID
@@ -171,8 +171,8 @@ public class TicketCreateDto {
     The value can either be in the form of the display_id (record id)
     or primary_field_value (user defined record value).
 
-    The default value is display_id.
-     */
-     String lookupParameter;
+//    The default value is display_id.
+//     */
+//     String lookupParameter;
 
 }
