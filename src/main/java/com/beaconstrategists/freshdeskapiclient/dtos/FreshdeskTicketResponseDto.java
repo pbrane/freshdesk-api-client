@@ -15,7 +15,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true) //fixme: check if this is what we want here
+//fixme: do we really need this @JsonProperty annotations?
 public class FreshdeskTicketResponseDto {
      @JsonProperty("cc_emails")
      private List<String> ccEmails;

@@ -8,6 +8,7 @@ import lombok.Value;
 
 import java.time.OffsetDateTime;
 
+//fixme: check this Lombok configuration
 @Value
 @Builder
 public class FreshdeskTicketCreateDto {

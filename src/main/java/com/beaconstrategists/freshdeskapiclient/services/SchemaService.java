@@ -17,7 +17,7 @@ public class SchemaService {
     private final RestClient restClient;
     private final Map<String, JsonNode> schemaMap = new ConcurrentHashMap<>();
 
-    public SchemaService(@Qualifier("camelCaseRestClient") RestClient restClient) {
+    public SchemaService(@Qualifier("snakeCaseRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
 

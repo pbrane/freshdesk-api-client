@@ -28,6 +28,26 @@ public class RestClientConfig {
     }
 
     @Bean
+    @Qualifier("fieldPresenceSnakeCaseSerializingRestClient")
+    public RestClient fieldPresenceSnakeCaseRestClient(@Qualifier("fieldPresenceSnakeCaseSerializingObjectMapper") ObjectMapper objectMapper) {
+        // Create custom JSON message converter
+        MappingJackson2HttpMessageConverter messageConverter =
+                new MappingJackson2HttpMessageConverter(objectMapper);
+
+        // Configure converters for RestClient
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(messageConverter);
+
+        // Build and return the RestClient
+        return RestClient.builder()
+                .baseUrl(freshdeskBaseUri)
+                .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
+                .messageConverters(converters)
+                .requestInterceptor(new LoggingInterceptor())
+                .build();
+    }
+
+    @Bean
     @Primary
     @Qualifier("snakeCaseRestClient")
     public RestClient snakeCaserestClient(@Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {

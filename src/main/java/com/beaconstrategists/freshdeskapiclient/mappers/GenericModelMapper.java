@@ -7,12 +7,15 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+//fixme: I don't think this is any better than the ModelMapperConfig
+//fixme: other than to add the LocalDate converter
+//fixme: look at getting rid of this class
 @Component
-public class GenericMapper {
+public class GenericModelMapper {
 
     private final ModelMapper modelMapper;
 
-    public GenericMapper(ModelMapper modelMapper) {
+    public GenericModelMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 

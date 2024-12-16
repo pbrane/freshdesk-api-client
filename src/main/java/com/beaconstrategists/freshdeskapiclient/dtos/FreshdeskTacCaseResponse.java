@@ -3,9 +3,10 @@ package com.beaconstrategists.freshdeskapiclient.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-@Data
+@Data //fixme: check this lombok configuration
 public class FreshdeskTacCaseResponse {
 
+    //fixme: do we really need this property annotations?
     @JsonProperty("display_id")
     private String displayId;
 
@@ -16,7 +17,7 @@ public class FreshdeskTacCaseResponse {
     private Long updatedTime;
 
     @JsonProperty("data")
-    private FreshdeskTacCaseDto data;
+    private FreshdeskTacCaseResponseDto data;
 
     @JsonProperty("version")
     private int version;
