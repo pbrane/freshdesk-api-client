@@ -9,9 +9,6 @@ import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
 import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -28,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FreshDeskCaseService implements TacCaseService {
+public class FreshDeskTacCaseService implements TacCaseService {
 
     private final RestClient snakeCaseRestClient;
     private final RestClient fieldPresenseRestClient;
@@ -45,11 +42,11 @@ public class FreshDeskCaseService implements TacCaseService {
 
     private final SchemaService schemaService;
 
-    public FreshDeskCaseService(@Qualifier("snakeCaseRestClient") RestClient snakeCaseRestClient,
-                                SchemaService schemaService,
-                                CompanyService companyService,
-                                GenericModelMapper genericModelMapper,
-                                @Qualifier("fieldPresenceSnakeCaseSerializingRestClient") RestClient fieldPresenseRestClient) {
+    public FreshDeskTacCaseService(@Qualifier("snakeCaseRestClient") RestClient snakeCaseRestClient,
+                                   SchemaService schemaService,
+                                   CompanyService companyService,
+                                   GenericModelMapper genericModelMapper,
+                                   @Qualifier("fieldPresenceSnakeCaseSerializingRestClient") RestClient fieldPresenseRestClient) {
 
         this.snakeCaseRestClient = snakeCaseRestClient;
         this.companyService = companyService;
@@ -141,7 +138,7 @@ public class FreshDeskCaseService implements TacCaseService {
         FreshdeskTacCaseResponseDto responseData = response.getData();
         return genericModelMapper.map(responseData, TacCaseResponseDto.class);
     }
-    
+
 
     @Override
     public List<TacCaseResponseDto> findAll() {
