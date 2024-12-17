@@ -1,6 +1,8 @@
 package com.beaconstrategists.freshdeskapiclient.services.impl;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.beaconstrategists.freshdeskapiclient.dtos.*;
+import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
 import com.beaconstrategists.freshdeskapiclient.model.*;
 import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
@@ -11,6 +13,7 @@ import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,10 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class FreshDeskTacCaseService implements TacCaseService {
@@ -56,13 +61,45 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
 
-    /**
+    /*
+     * Create an RMA Case in Freshdesk
+     */
+
+    public RmaCaseResponseDto create(RmaCaseCreateDto rmaCaseCreateDto) {
+
+        //Find the TAC Case
+        Long id = rmaCaseCreateDto.getTacCaseId();
+        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
+        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecords(id, tacCaseSchemaId);
+        assert freshdeskTacCaseResponseRecords != null;
+        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
+        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskCaseResponse::getData).orElse(null);
+        //get the record's identifier, this is what we need to update the record
+        String displayId = record.get().getDisplayId();
+        Long ticketId = freshdeskTacCaseResponseDto.getTicket();
+        String rmaKey = freshdeskTacCaseResponseDto.getKey();
+
+        //Create the RMA Case referring to the TAC Case
+        FreshdeskRmaCaseCreateDto freshdeskRmaCaseCreateDto = genericModelMapper.map(rmaCaseCreateDto, FreshdeskRmaCaseCreateDto.class);
+        Random random = new Random();
+        char[] alphabet = {'m','o','l','e','x'};
+        int size = 12;
+        String randomKey = NanoIdUtils.randomNanoId(random, alphabet, size);
+        freshdeskRmaCaseCreateDto.setKey(rmaKey+":"+ randomKey);
+        freshdeskRmaCaseCreateDto.setTacCase(displayId);
+        FreshdeskDataCreateRequest<FreshdeskRmaCaseCreateDto> freshdeskRmaCreateRequest = new FreshdeskDataCreateRequest<>(freshdeskRmaCaseCreateDto);
+        String rmaCaseSchemaId = schemaService.getSchemaIdByName("RMA Cases");
+
+        return null;
+    }
+
+
+    /*
      * Create a TAC Case in Freshdesk
      */
     public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
 
         FreshdeskTicketCreateDto freshdeskTicketCreateDto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
-
         FreshdeskTicketResponseDto freshdeskTicketResponseDto = saveFreshdeskTicket(freshdeskTicketCreateDto, snakeCaseRestClient);
 
         assert freshdeskTicketResponseDto != null;  //fixme: what happens here if null
@@ -70,13 +107,13 @@ public class FreshDeskTacCaseService implements TacCaseService {
         FreshdeskTacCaseCreateDto freshdeskTacCaseCreateDto = genericModelMapper.map(tacCaseCreateDto, FreshdeskTacCaseCreateDto.class);
         freshdeskTacCaseCreateDto.setKey("ID: " + freshdeskTicketResponseDto.getId() + "; " + tacCaseCreateDto.getSubject());
         freshdeskTacCaseCreateDto.setTicket(freshdeskTicketResponseDto.getId());
-        //fixme: FreshdeskTacCaseCreateRequest and FreshdeskTacCaseRequest are identical
-        FreshdeskTacCaseCreateRequest freshdeskTacCaseCreateRequest = new FreshdeskTacCaseCreateRequest(freshdeskTacCaseCreateDto);
+        //fixme: FreshdeskDataCreateRequest and FreshdeskTacCaseRequest are identical
+        FreshdeskDataCreateRequest<FreshdeskTacCaseCreateDto> freshdeskTacCaseCreateRequest = new FreshdeskDataCreateRequest<>(freshdeskTacCaseCreateDto);
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
 
-        FreshdeskTacCaseResponse freshdeskTacCaseResponse = saveFreshdeskTacCase(tacCaseSchemaId, freshdeskTacCaseCreateRequest, snakeCaseRestClient);
-
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse = updateFreshdeskTacCase(tacCaseSchemaId, freshdeskTacCaseCreateRequest, snakeCaseRestClient);
         FreshdeskTacCaseResponseDto data = freshdeskTacCaseResponse.getData();
+
         TacCaseResponseDto responseDto = genericModelMapper.map(data, TacCaseResponseDto.class);
         responseDto.setSubject(freshdeskTicketResponseDto.getSubject());
         responseDto.setId(freshdeskTicketResponseDto.getId());
@@ -84,12 +121,25 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     }
 
+    /*
+     * Update a TAC Case in Freshdesk
+     */
+
     @Override
     public TacCaseResponseDto update(Long id, TacCaseUpdateDto tacCaseUpdateDto) {
 
-        //Update the Freshdesk Ticket
+        FreshdeskTicketResponseDto freshdeskTicketResponseDto;
+
         FreshdeskTicketUpdateDto freshdeskTicketUpdateDto = buildFreshdeskTicketUpdateDto(tacCaseUpdateDto);
-        FreshdeskTicketResponseDto freshdeskTicketResponseDto = updateTicket(id, freshdeskTicketUpdateDto);
+        if (freshdeskTicketUpdateDto != null) {
+            freshdeskTicketResponseDto = updateTicket(id, freshdeskTicketUpdateDto);
+        } else {
+            freshdeskTicketResponseDto = snakeCaseRestClient.get()
+                    .uri("/tickets/{id}", id)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(FreshdeskTicketResponseDto.class);
+        }
 
         assert freshdeskTicketResponseDto != null; //fixme: what happens here if null?
 
@@ -99,21 +149,21 @@ public class FreshDeskTacCaseService implements TacCaseService {
         Need the Schema ID to build the URL
 */
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
+
 /*
         The response body we are looking for here is the same as the response from
         a create but since a query, by design, could be more than one "record"
         or row, the response comes wrapped in an array called "records".
 */
-        FreshdeskTacCaseResponseRecords freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecords(id, tacCaseSchemaId);
-
+        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecords(id, tacCaseSchemaId);
         assert freshdeskTacCaseResponseRecords != null;
 
 /*
         If there is a record, there will only be one as this is a 1:1 relationship by design
         The record ID here is not an integer like with a ticket
 */
-        Optional<FreshdeskTacCaseResponse> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
-        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskTacCaseResponse::getData).orElse(null);
+        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
+        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskCaseResponse::getData).orElse(null);
 
         //get the record's identifier, this is what we need to update the record
         String displayId = record.get().getDisplayId();
@@ -125,18 +175,32 @@ public class FreshDeskTacCaseService implements TacCaseService {
          The following is from the documentation.
          { "display_id": "BKG-1", "data": { "product_name": "Fiber Concentrator", "product_firmware_version": "v1.23.4" } }
 */
-        // Map all the fields from the query response to the update dto
+        // Map all the field values from the TAC Case query response to the update dto
         FreshdeskTacCaseUpdateDto freshdeskTacCaseUpdateDto = genericModelMapper.map(freshdeskTacCaseResponseDto, FreshdeskTacCaseUpdateDto.class);
+        CasePriorityEnum priority = CasePriorityEnum.valueOf(freshdeskTicketResponseDto.getPriorityForTickets().name());
+        freshdeskTacCaseUpdateDto.setCasePriority(priority);
+        CaseStatus status = CaseStatus.valueOf(freshdeskTicketResponseDto.getStatusForTickets().name());
+        freshdeskTacCaseUpdateDto.setCaseStatus(status);
+        freshdeskTacCaseUpdateDto.setSubject(freshdeskTicketResponseDto.getSubject());
+
+        // Now map all the "fields present" in the TacCaseUpdateDto.
+        FieldPresenceModelMapper fieldPresenceModelMapper = new FieldPresenceModelMapper();
+        fieldPresenceModelMapper.map(tacCaseUpdateDto, freshdeskTacCaseUpdateDto);
 
         // Now wrap it to have the display_id, version (also not documented), and the request in an element called data:)
         FreshdeskTacCaseUpdateRequest updateRequest = new FreshdeskTacCaseUpdateRequest(freshdeskTacCaseUpdateDto);
         updateRequest.setDisplayId(displayId);
         updateRequest.setVersion(record.get().getVersion());
 
-        FreshdeskTacCaseResponse response = saveFreshdeskTacCase(tacCaseSchemaId, displayId, updateRequest);
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> response = updateFreshdeskTacCase(tacCaseSchemaId, displayId, updateRequest);
 
         FreshdeskTacCaseResponseDto responseData = response.getData();
-        return genericModelMapper.map(responseData, TacCaseResponseDto.class);
+        TacCaseResponseDto tacCaseResponseDto = genericModelMapper.map(responseData, TacCaseResponseDto.class);
+        tacCaseResponseDto.setId(freshdeskTicketResponseDto.getId());
+        tacCaseResponseDto.setSubject(freshdeskTicketResponseDto.getSubject());
+        tacCaseResponseDto.setCaseStatus(status);
+        tacCaseResponseDto.setCasePriority(priority);
+        return tacCaseResponseDto;
     }
 
 
@@ -260,21 +324,23 @@ public class FreshDeskTacCaseService implements TacCaseService {
     /*
     Helper Methods
      */
-    private FreshdeskTacCaseResponse saveFreshdeskTacCase(String tacCaseSchemaId, String displayId, FreshdeskTacCaseUpdateRequest updateRequest) {
-        FreshdeskTacCaseResponse response = fieldPresenseRestClient.put()
+    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> updateFreshdeskTacCase(String tacCaseSchemaId, String displayId, FreshdeskTacCaseUpdateRequest updateRequest) {
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> response = fieldPresenseRestClient.put()
                 .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", tacCaseSchemaId, displayId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(updateRequest)
                 .retrieve()
-                .body(FreshdeskTacCaseResponse.class);
+                .body(new ParameterizedTypeReference<>() {
+                });
         return response;
     }
 
-    private FreshdeskTacCaseResponseRecords findFreshdeskTacCaseRecords(Long id, String tacCaseSchemaId) {
-        FreshdeskTacCaseResponseRecords freshdeskTacCaseResponseRecords = snakeCaseRestClient.get()
-                .uri("/custom_objects/schemas/"+ tacCaseSchemaId +"/records?ticket={ticketId}", id)
+    private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecords(Long id, String tacCaseSchemaId) {
+        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = snakeCaseRestClient.get()
+                .uri("/custom_objects/schemas/" + tacCaseSchemaId + "/records?ticket={ticketId}", id)
                 .retrieve()
-                .body(FreshdeskTacCaseResponseRecords.class);
+                .body(new ParameterizedTypeReference<>() {
+                });
         return freshdeskTacCaseResponseRecords;
     }
 
@@ -288,13 +354,35 @@ public class FreshDeskTacCaseService implements TacCaseService {
         return freshdeskTicketResponseDto;
     }
 
-    private static FreshdeskTacCaseResponse saveFreshdeskTacCase(String tacCaseSchemaId, FreshdeskTacCaseCreateRequest freshdeskTacCaseCreateRequest, RestClient restClient) {
-        FreshdeskTacCaseResponse responseTacCase = restClient.post()
+    private static FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto>
+    createFreshdeskRmaCase(String rmaCaseSchemaId,
+                           FreshdeskDataCreateRequest<FreshdeskRmaCaseCreateDto> freshdeskRmaCaseCreateRequest,
+                           RestClient restClient) {
+
+        FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> responseRmaCase = restClient.post()
+                .uri("/custom_objects/schemas/{schemaId}/records", rmaCaseSchemaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(freshdeskRmaCaseCreateRequest)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        assert responseRmaCase != null;
+        return responseRmaCase;
+    }
+
+
+    private static FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>
+    updateFreshdeskTacCase(String tacCaseSchemaId,
+                           FreshdeskDataCreateRequest<FreshdeskTacCaseCreateDto> freshdeskTacCaseCreateRequest,
+                           RestClient restClient) {
+
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> responseTacCase = restClient.post()
                 .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(freshdeskTacCaseCreateRequest)
                 .retrieve()
-                .body(FreshdeskTacCaseResponse.class);
+                .body(new ParameterizedTypeReference<>() {
+                });
         assert responseTacCase != null;
         return responseTacCase;
     }
@@ -326,28 +414,39 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
     private static FreshdeskTicketUpdateDto buildFreshdeskTicketUpdateDto(TacCaseUpdateDto tacCaseUpdateDto) {
+
+        boolean requiresUpdate = false;
+
         FreshdeskTicketUpdateDto freshdeskTicketUpdateDto = new FreshdeskTicketUpdateDto();
         if (tacCaseUpdateDto.isFieldPresent("subject")) {
             freshdeskTicketUpdateDto.setSubject(tacCaseUpdateDto.getSubject());
+            requiresUpdate = true;
         }
 
         if (tacCaseUpdateDto.isFieldPresent("contactEmail")) {
             freshdeskTicketUpdateDto.setEmail(tacCaseUpdateDto.getContactEmail());
+            requiresUpdate = true;
         }
 
         if (tacCaseUpdateDto.isFieldPresent("problemDescription")) {
             freshdeskTicketUpdateDto.setDescription(tacCaseUpdateDto.getProblemDescription());
+            requiresUpdate = true;
         }
 
         if (tacCaseUpdateDto.isFieldPresent("caseStatus")) {
             freshdeskTicketUpdateDto.setStatus(StatusForTickets.valueOf(tacCaseUpdateDto.getCaseStatus().getValue()));
-
+            requiresUpdate = true;
         }
 
         if (tacCaseUpdateDto.isFieldPresent("casePriority")) {
             freshdeskTicketUpdateDto.setPriority(PriorityForTickets.valueOf(tacCaseUpdateDto.getCasePriority().getValue()));
+            requiresUpdate = true;
         }
-        return freshdeskTicketUpdateDto;
+        if (requiresUpdate) {
+            return freshdeskTicketUpdateDto;
+        } else {
+            return null;
+        }
     }
     
 }

@@ -1,4 +1,274 @@
 {
-  "code": "invalid_credentials",
-  "message": "You have to be logged in to perform this action."
+  "name": "RMA Cases",
+  "prefix": "_3",
+  "title": null,
+  "description": null,
+  "version": 18,
+  "deleted": false,
+  "id": 10733585,
+  "form_options": {},
+  "created_time": 1733333029461,
+  "updated_time": 1734034812144,
+  "icon_link": "https://d2lz1e868xzctj.cloudfront.net/icons/Equipment.svg",
+  "fields": [
+    {
+      "id": "21993510-1451-4594-b332-54e9f1797e3a",
+      "name": "key",
+      "label": "Key",
+      "type": "PRIMARY",
+      "position": 1,
+      "required": true,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "true"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "23484eaa-44a0-45d9-aa26-34023fbd4e9e",
+      "name": "tac_case",
+      "label": "TAC Case",
+      "type": "RELATIONSHIP",
+      "position": 2,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "related_entity_id": 10563011,
+      "relationship_name": "tac_case",
+      "child_relationship_name": "rma_cases_1733333463329",
+      "choices": []
+    },
+    {
+      "id": "7c4c9a16-360a-40f3-93c2-4457284025ca",
+      "name": "case_status",
+      "label": "Case Status",
+      "type": "DROPDOWN",
+      "position": 3,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": [
+        {
+          "id": 1,
+          "value": "Open",
+          "position": 1,
+          "dependent_ids": {}
+        },
+        {
+          "id": 2,
+          "value": "Pending",
+          "position": 2,
+          "dependent_ids": {}
+        },
+        {
+          "id": 3,
+          "value": "Resolved",
+          "position": 3,
+          "dependent_ids": {}
+        },
+        {
+          "id": 4,
+          "value": "Closed",
+          "position": 4,
+          "dependent_ids": {}
+        }
+      ]
+    },
+    {
+      "id": "cdaffa78-72ee-4860-861a-cdd08bbc3e50",
+      "name": "faulty_part_serial_number",
+      "label": "Faulty Part Serial Number",
+      "type": "TEXT",
+      "position": 4,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "254a74fe-e844-4c5e-b9dc-280af39e958a",
+      "name": "case_create_date",
+      "label": "Case Create Date",
+      "type": "DATE",
+      "position": 5,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "76fad3e7-c970-40bd-a128-715218f62e7c",
+      "name": "returned_serial_number",
+      "label": "Returned Serial Number",
+      "type": "TEXT",
+      "position": 6,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "aa3dbdbb-855b-4ab8-b015-bab6fd7ec994",
+      "name": "new_part_serial_number",
+      "label": "New Part Serial Number",
+      "type": "TEXT",
+      "position": 7,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "0064392e-c270-465a-8f5c-c3b94a7aefb3",
+      "name": "case_closed_date",
+      "label": "Case Closed Date",
+      "type": "DATE",
+      "position": 8,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "d5e310ee-928c-47af-8981-44d1c4d1f742",
+      "name": "request_type",
+      "label": "Request Type",
+      "type": "TEXT",
+      "position": 9,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "dbe876a8-fa78-43b9-8659-fe6446c0f988",
+      "name": "case_number",
+      "label": "Case Number",
+      "type": "TEXT",
+      "position": 10,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    },
+    {
+      "id": "cfcd6471-6ff5-4c2c-95f3-ddff08b1303b",
+      "name": "new_part_delivery_date_eta",
+      "label": "New Part Delivery Date ETA",
+      "type": "DATE",
+      "position": 11,
+      "required": false,
+      "editable": true,
+      "visible": true,
+      "deleted": false,
+      "placeholder": null,
+      "hint": null,
+      "field_options": {
+        "unique": "false"
+      },
+      "filterable": true,
+      "searchable": true,
+      "has_dependents": false,
+      "parent_id": null,
+      "choices": []
+    }
+  ]
 }

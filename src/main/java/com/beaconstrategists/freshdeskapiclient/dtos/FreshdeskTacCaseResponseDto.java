@@ -18,44 +18,6 @@ import java.time.LocalDate;
 //fixme: figure out why this doesn't serialize the full list of fields if it extends the API's TacCaseResponseDto
 public class FreshdeskTacCaseResponseDto {
 
-    private String subject;
-
-    private String problemDescription;
-
-    private String caseSolutionDescription;
-
-    private String accountNumber;
-
-    private Boolean rmaNeeded;
-
-    private String installationCountry;
-
-    private String customerTrackingNumber;
-
-    private String businessImpact;
-
-    private Integer relatedDispatchCount;
-
-    private String productName;
-
-    private CasePriorityEnum casePriority;
-
-    private String contactEmail;
-
-    private LocalDate caseClosedDate;
-
-    private LocalDate firstResponseDate;
-
-    private CaseStatus caseStatus;
-
-    private String faultySerialNumber;
-
-    private String productSerialNumber;
-
-    private String productFirmwareVersion;
-
-    private LocalDate caseCreatedDate;
-
     /**
      * This field mirrors a must have configuration in Freshdesk, I used the term Key,
      * which is required for this configuration, but is just the name given for the
@@ -64,5 +26,39 @@ public class FreshdeskTacCaseResponseDto {
     private String key;
 
     private Long ticket;
+
+    private Boolean rmaNeeded;
+
+    private Integer relatedDispatchCount;
+
+    private String problemDescription;
+
+    private String installationCountry;
+
+    private LocalDate firstResponseDate;
+
+    private String customerTrackingNumber;
+
+    private String contactEmail;
+
+    private String productName;
+
+    private String productSerialNumber;
+
+    private String productFirmwareVersion;
+
+    private LocalDate caseCreatedDate;
+
+    private LocalDate caseClosedDate;
+
+    private String caseSolutionDescription;
+
+    private String businessImpact;
+
+    private String accountNumber;
+
+    private String faultySerialNumber;
+
+    private String caseOwner;
 
 }

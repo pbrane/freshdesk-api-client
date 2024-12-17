@@ -13,8 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)  //fixme: check this what we want/need here
-public class FreshdeskTacCaseResponseRecords {
+public class FreshdeskTacCaseResponseRecords<T> {
 
-    private List<FreshdeskTacCaseResponse> records;
+    private List<FreshdeskCaseResponse<T>> records;
 
 }
