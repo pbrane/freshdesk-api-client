@@ -1,8 +1,7 @@
 package com.beaconstrategists.freshdeskapiclient.controllers;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseCreateDto;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseResponseDto;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseUpdateDto;
+import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
+import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +15,18 @@ public class TicketController {
 
 
     private final TacCaseService tacCaseService;
+    private final RmaCaseService rmaCaseService;
 
-    public TicketController(TacCaseService tacCaseService) {
+    public TicketController(TacCaseService tacCaseService, RmaCaseService rmaCaseService) {
         this.tacCaseService = tacCaseService;
+        this.rmaCaseService = rmaCaseService;
+    }
+
+    @PostMapping("/rmaCases")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    RmaCaseResponseDto createRmaCase(@RequestBody RmaCaseCreateDto dto) {
+        RmaCaseResponseDto rmaCaseResponseDto = rmaCaseService.create(dto);
+        return rmaCaseResponseDto;
     }
 
     @PostMapping("/tacCases")

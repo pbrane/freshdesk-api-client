@@ -27,6 +27,8 @@ public class FreshdeskTacCaseResponseDto {
 
     private Long ticket;
 
+    private String caseNumber;
+
     private Boolean rmaNeeded;
 
     private Integer relatedDispatchCount;
