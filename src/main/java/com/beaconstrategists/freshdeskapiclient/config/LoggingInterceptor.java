@@ -35,7 +35,8 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
     }
 
     private void logResponse(ClientHttpResponse response) throws IOException {
-        System.out.println("Response Status Code: " + response.getStatusCode());
-        System.out.println("Response Headers: " + response.getHeaders());
+        System.out.println("\n\tResponse Status Code: " + response.getStatusCode());
+        System.out.println("\tResponse Headers: " + response.getHeaders());
+        System.out.println("\n");
     }
 }

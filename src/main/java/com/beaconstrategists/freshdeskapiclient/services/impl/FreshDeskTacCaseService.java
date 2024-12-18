@@ -293,7 +293,9 @@ public class FreshDeskTacCaseService implements TacCaseService {
     /*
     Helper Methods
      */
-    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> createFreshdeskTacCase(String tacCaseSchemaId, String displayId, FreshdeskTacCaseUpdateRequest updateRequest) {
+    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> createFreshdeskTacCase(String tacCaseSchemaId,
+                                                                                      String displayId,
+                                                                                      FreshdeskTacCaseUpdateRequest updateRequest) {
         FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> response = fieldPresenseRestClient.put()
                 .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", tacCaseSchemaId, displayId)
                 .contentType(MediaType.APPLICATION_JSON)

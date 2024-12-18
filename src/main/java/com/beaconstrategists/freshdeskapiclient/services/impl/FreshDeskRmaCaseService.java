@@ -2,6 +2,7 @@ package com.beaconstrategists.freshdeskapiclient.services.impl;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.beaconstrategists.freshdeskapiclient.dtos.*;
+import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
 import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
 import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
@@ -68,6 +69,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
         FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecords(id, tacCaseSchemaId);
         assert freshdeskTacCaseResponseRecords != null;
+
         Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
         FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskCaseResponse::getData).orElse(null);
         //get the record's identifier, this is what we need to update the record
@@ -93,30 +95,100 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
-
         assert createRmaCaseResponse != null;
 
-        Long rmaId = parseRmaId(createRmaCaseResponse);
-
-        RmaCaseResponseDto responseDto = genericModelMapper.map(createRmaCaseResponse.getData(), RmaCaseResponseDto.class);
-        responseDto.setId(rmaId);
-        responseDto.setTacCaseId(ticketId);
+        Long rmaId = parseRmaId(createRmaCaseResponse.getDisplayId());
+        RmaCaseResponseDto rmaCaseResponseDto = genericModelMapper.map(createRmaCaseResponse.getData(), RmaCaseResponseDto.class);
+        rmaCaseResponseDto.setId(rmaId);
+        rmaCaseResponseDto.setTacCaseId(ticketId);
 
         //fixme: to do this right, we have to to an update to set this field
 //        responseDto.setCaseNumber(createRmaCaseResponse.getDisplayId());
 
-        return responseDto;
+        return rmaCaseResponseDto;
     }
+
+    @Override
+    public RmaCaseResponseDto update(Long id, RmaCaseUpdateDto rmaCaseUpdateDto) {
+
+        //fixme: need to get the TAC Case for this RMA Case in order to return the tacCaseId in the Response
+        //fixme: so, go ahead and fetch the RMA Case to get the display_id of the TAC Case, then fetch
+        //fixme: the TAC Case to get the TicketID
+        //
+        //fixme: a better solution just might be to store those display_ids in the caseNumber (shrug)
+
+
+        //find the RMA
+        //the FD ID is the display ID which is the RMA Prefix + the ID as a String
+        String rmaDisplayId = rmaCaseIdPrefix+id;
+        String rmaCaseSchemaId = schemaService.getSchemaIdByName("RMA Cases");
+
+        //First, get the existing record
+        //"/api/v2/custom_objects/schemas/{schema-id}/records/{record-id}"
+        FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> freshdeskRmaCaseResponse = snakeCaseRestClient.get()
+                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", rmaCaseSchemaId, rmaDisplayId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        assert freshdeskRmaCaseResponse != null;
+
+        FreshdeskRmaCaseResponseDto freshdeskRmaCaseResponseDto = freshdeskRmaCaseResponse.getData();
+
+        //get the TacCase to get the Ticket ID to save in the RMA Update Response as tacCaseId
+        String tacCaseDisplayId = freshdeskRmaCaseResponseDto.getTacCase();
+        assert tacCaseDisplayId != null;
+        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse = snakeCaseRestClient.get()
+                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", tacCaseSchemaId, tacCaseDisplayId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        assert freshdeskTacCaseResponse != null;
+        Long tacCaseId = freshdeskTacCaseResponse.getData().getTicket();
+
+        FreshdeskRmaCaseUpdateDto freshdeskRmaCaseUpdateDto = genericModelMapper.
+                map(freshdeskRmaCaseResponseDto, FreshdeskRmaCaseUpdateDto.class);
+
+        //Map the changes from the update request to the existing data
+        FieldPresenceModelMapper fieldPresenceModelMapper = new FieldPresenceModelMapper();
+        fieldPresenceModelMapper.map(rmaCaseUpdateDto, freshdeskRmaCaseUpdateDto);
+
+        //Send the update
+        FreshdeskRmaCaseUpdateRequest updateRequest = new FreshdeskRmaCaseUpdateRequest(freshdeskRmaCaseUpdateDto);
+        updateRequest.setVersion(freshdeskRmaCaseResponse.getVersion());
+        updateRequest.setDisplayId(freshdeskRmaCaseResponse.getDisplayId());
+
+        freshdeskRmaCaseResponse = snakeCaseRestClient.put()
+                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", rmaCaseSchemaId, rmaDisplayId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(updateRequest)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        assert freshdeskRmaCaseResponse != null;
+
+
+        freshdeskRmaCaseResponseDto = freshdeskRmaCaseResponse.getData();
+/*
+        Note:
+        This genericModelMapper returns an instance of FreshdeskRmaCaseResponseDto
+        Really weird but fortunately, it works, the extra few fields added to the child class
+        are not serialized in the response from the controller
+*/
+        RmaCaseResponseDto rmaCaseResponseDto = genericModelMapper.map(freshdeskRmaCaseResponseDto, RmaCaseResponseDto.class);
+        Long rmaId = parseRmaId(freshdeskRmaCaseResponse.getDisplayId());
+        rmaCaseResponseDto.setId(rmaId);
+        rmaCaseResponseDto.setTacCaseId(tacCaseId); //tricky part
+
+        return rmaCaseResponseDto;
+    }
+
 
     @Override
     public Optional<RmaCaseResponseDto> findById(Long id) {
         return Optional.empty();
     }
 
-    @Override
-    public RmaCaseResponseDto update(Long id, RmaCaseUpdateDto rmaCaseUpdateDto) {
-        return null;
-    }
 
     @Override
     public void delete(Long id) {
@@ -198,27 +270,26 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
     Helper Methods
      */
 
-    private Long parseRmaId(FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> createRmaCaseResponse) {
+    private Long parseRmaId(String displayId) {
         Long rmaId;
-        String rmaCaseDisplayId = createRmaCaseResponse.getDisplayId();
-        if (rmaCaseDisplayId.contains(rmaCaseIdPrefix)) {
-            String value = rmaCaseDisplayId.substring(rmaCaseDisplayId.indexOf(rmaCaseIdPrefix) + rmaCaseIdPrefix.length());
+        if (displayId.contains(rmaCaseIdPrefix)) {
+            String value = displayId.substring(displayId.indexOf(rmaCaseIdPrefix) + rmaCaseIdPrefix.length());
             rmaId = Long.valueOf(value);
             System.out.println("Extracted Integer: " + rmaId);
         } else {
             System.out.println("Prefix not found");
             throw new IllegalStateException("Prefix: { "+rmaCaseIdPrefix+" } not found.");
         }
+
         return rmaId;
     }
 
     private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecords(Long id, String tacCaseSchemaId) {
-        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = snakeCaseRestClient.get()
+        return snakeCaseRestClient.get()
                 .uri("/custom_objects/schemas/" + tacCaseSchemaId + "/records?ticket={ticketId}", id)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
-        return freshdeskTacCaseResponseRecords;
     }
 
 }

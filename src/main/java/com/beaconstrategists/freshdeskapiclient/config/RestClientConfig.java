@@ -64,6 +64,7 @@ public class RestClientConfig {
                 .baseUrl(freshdeskBaseUri)
                 .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
                 .messageConverters(converters)
+                .requestInterceptor(new LoggingInterceptor())
                 .build();
     }
 
@@ -83,6 +84,7 @@ public class RestClientConfig {
                 .baseUrl(freshdeskBaseUri)
                 .defaultHeader("Authorization", "Basic " + getBase64ApiKey())
                 .messageConverters(converters)
+                .requestInterceptor(new LoggingInterceptor())
                 .build();
     }
 

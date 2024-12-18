@@ -45,6 +45,11 @@ public class TicketController {
         return tacCaseService.update(id, dto);
     }
 
+    @PutMapping("/rmaCases/{id}")
+    RmaCaseResponseDto updateRmaCase(@PathVariable Long id, @RequestBody RmaCaseUpdateDto dto) {
+        return rmaCaseService.update(id, dto);
+    }
+
 
 /*
     @PostMapping("/tickets")
