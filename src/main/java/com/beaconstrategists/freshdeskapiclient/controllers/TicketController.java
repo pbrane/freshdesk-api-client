@@ -4,6 +4,7 @@ import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
 import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -36,8 +37,10 @@ public class TicketController {
     }
 
     @GetMapping("/tacCases/{id}")
-    Optional<TacCaseResponseDto> getTacCase(@PathVariable Long id) {
-        return tacCaseService.findById(id);
+    public ResponseEntity<TacCaseResponseDto> getTacCase(@PathVariable Long id) {
+        return tacCaseService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/tacCases/{id}")
@@ -48,6 +51,13 @@ public class TicketController {
     @PutMapping("/rmaCases/{id}")
     RmaCaseResponseDto updateRmaCase(@PathVariable Long id, @RequestBody RmaCaseUpdateDto dto) {
         return rmaCaseService.update(id, dto);
+    }
+
+    @GetMapping("/rmaCases/{id}")
+    public ResponseEntity<RmaCaseResponseDto> getRmaCase(@PathVariable Long id) {
+        return rmaCaseService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 

@@ -24,7 +24,7 @@ public class FreshdeskTicketService implements TicketService {
     private final SchemaService schemaService;
     private final CompanyService companyService;
 
-    @Value("${FD_CUSTOMER_NAME:Microsoft}")
+    @Value("${FD_CUSTOMER_NAME:Beacon}")
     private String companyName;
 
     public FreshdeskTicketService(@Qualifier("snakeCaseRestClient") RestClient restClient, SchemaService schemaService, CompanyService companyService) {

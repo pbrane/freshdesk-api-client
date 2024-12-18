@@ -14,7 +14,7 @@ public class DataInitializer {
     private final SchemaService schemaService;
     private final CompanyService companyService;
 
-    @Value("${FD_CUSTOMER_NAME:Molex, Inc.}")
+    @Value("${FD_CUSTOMER_NAME:Beacon}")
     private String requiredCompany;
 
     public DataInitializer(SchemaService schemaService, CompanyService companyService) {

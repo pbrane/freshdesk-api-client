@@ -26,13 +26,21 @@ import java.util.Random;
 public class FreshDeskRmaCaseService implements RmaCaseService {
 
     private final RestClient snakeCaseRestClient;
+
+    /*
+     * This RestClient is only needed for updating Tickets
+     * Freshdesk Tickets can handle partial updates.
+     * Freshdesk Custom Objects (TAC/RMA Cases) require full updates.
+     * The Custom Objects are managed with a FieldPresence ModelMapper.
+     * So, they don't need, and shouldn't use, this RestClient
+     */
     private final RestClient fieldPresenseRestClient;
 
     private final CompanyService companyService;
 
     private final GenericModelMapper genericModelMapper;
 
-    @Value("${FD_CUSTOMER_NAME:Microsoft}")
+    @Value("${FD_CUSTOMER_NAME:Beacon}")
     private String companyName;
 
     @Value("${FD_DEFAULT_RESPONDER_ID:3043029172572}")
@@ -67,7 +75,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         //Find the TAC Case
         Long id = rmaCaseCreateDto.getTacCaseId();
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
-        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecords(id, tacCaseSchemaId);
+        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecordsByTicketId(id, tacCaseSchemaId);
         assert freshdeskTacCaseResponseRecords != null;
 
         Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
@@ -97,7 +105,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
                 });
         assert createRmaCaseResponse != null;
 
-        Long rmaId = parseRmaId(createRmaCaseResponse.getDisplayId());
+        Long rmaId = parseIdFromDisplayId(createRmaCaseResponse.getDisplayId(), rmaCaseIdPrefix);
         RmaCaseResponseDto rmaCaseResponseDto = genericModelMapper.map(createRmaCaseResponse.getData(), RmaCaseResponseDto.class);
         rmaCaseResponseDto.setId(rmaId);
         rmaCaseResponseDto.setTacCaseId(ticketId);
@@ -121,30 +129,27 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         //find the RMA
         //the FD ID is the display ID which is the RMA Prefix + the ID as a String
         String rmaDisplayId = rmaCaseIdPrefix+id;
-        String rmaCaseSchemaId = schemaService.getSchemaIdByName("RMA Cases");
 
         //First, get the existing record
         //"/api/v2/custom_objects/schemas/{schema-id}/records/{record-id}"
-        FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> freshdeskRmaCaseResponse = snakeCaseRestClient.get()
-                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", rmaCaseSchemaId, rmaDisplayId)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+        FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> freshdeskRmaCaseResponse = getFreshdeskRmaCaseResponse(id);
+
         assert freshdeskRmaCaseResponse != null;
 
+        String rmaCaseDisplayId = freshdeskRmaCaseResponse.getDisplayId();
         FreshdeskRmaCaseResponseDto freshdeskRmaCaseResponseDto = freshdeskRmaCaseResponse.getData();
 
         //get the TacCase to get the Ticket ID to save in the RMA Update Response as tacCaseId
         String tacCaseDisplayId = freshdeskRmaCaseResponseDto.getTacCase();
         assert tacCaseDisplayId != null;
-        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
-        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse = snakeCaseRestClient.get()
-                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", tacCaseSchemaId, tacCaseDisplayId)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
-        assert freshdeskTacCaseResponse != null;
-        Long tacCaseId = freshdeskTacCaseResponse.getData().getTicket();
+
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse =
+                findFreshdeskTacCaseByDisplayId(tacCaseDisplayId);
+
+        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = freshdeskTacCaseResponse.getData();
+        assert freshdeskTacCaseResponseDto != null;
+
+        Long tacCaseId = freshdeskTacCaseResponseDto.getTicket();
 
         FreshdeskRmaCaseUpdateDto freshdeskRmaCaseUpdateDto = genericModelMapper.
                 map(freshdeskRmaCaseResponseDto, FreshdeskRmaCaseUpdateDto.class);
@@ -154,14 +159,16 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         fieldPresenceModelMapper.map(rmaCaseUpdateDto, freshdeskRmaCaseUpdateDto);
 
         //Send the update
-        FreshdeskRmaCaseUpdateRequest updateRequest = new FreshdeskRmaCaseUpdateRequest(freshdeskRmaCaseUpdateDto);
-        updateRequest.setVersion(freshdeskRmaCaseResponse.getVersion());
-        updateRequest.setDisplayId(freshdeskRmaCaseResponse.getDisplayId());
+        FreshdeskRmaCaseUpdateRequest freshdeskRmaCaseUpdateRequest = new FreshdeskRmaCaseUpdateRequest(freshdeskRmaCaseUpdateDto);
+        freshdeskRmaCaseUpdateRequest.setDisplayId(freshdeskRmaCaseResponse.getDisplayId());
+        freshdeskRmaCaseUpdateRequest.setVersion(freshdeskRmaCaseResponse.getVersion());
+
+        String rmaCaseSchemaId = schemaService.getSchemaIdByName("RMA Cases");
 
         freshdeskRmaCaseResponse = snakeCaseRestClient.put()
                 .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", rmaCaseSchemaId, rmaDisplayId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(updateRequest)
+                .body(freshdeskRmaCaseUpdateRequest)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
@@ -176,7 +183,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         are not serialized in the response from the controller
 */
         RmaCaseResponseDto rmaCaseResponseDto = genericModelMapper.map(freshdeskRmaCaseResponseDto, RmaCaseResponseDto.class);
-        Long rmaId = parseRmaId(freshdeskRmaCaseResponse.getDisplayId());
+        Long rmaId = parseIdFromDisplayId(freshdeskRmaCaseResponse.getDisplayId(), rmaCaseIdPrefix);
         rmaCaseResponseDto.setId(rmaId);
         rmaCaseResponseDto.setTacCaseId(tacCaseId); //tricky part
 
@@ -186,9 +193,26 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
 
     @Override
     public Optional<RmaCaseResponseDto> findById(Long id) {
-        return Optional.empty();
-    }
 
+        //fixme: duplicate code fragment
+
+        FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> freshdeskRmaCaseResponse = getFreshdeskRmaCaseResponse(id);
+        FreshdeskRmaCaseResponseDto freshdeskRmaCaseResponseDto = freshdeskRmaCaseResponse.getData();
+        assert freshdeskRmaCaseResponseDto != null;
+
+        RmaCaseResponseDto rmaCaseResponseDto = genericModelMapper.map(freshdeskRmaCaseResponseDto, RmaCaseResponseDto.class);
+
+        //now we have to pull the TAC Case to get the TAC Case ID which is the Freshdesk Ticket ID
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse =
+                findFreshdeskTacCaseByDisplayId(freshdeskRmaCaseResponseDto.getTacCase());
+        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = freshdeskTacCaseResponse.getData();
+        assert freshdeskTacCaseResponseDto != null;
+
+        rmaCaseResponseDto.setId(id);
+        rmaCaseResponseDto.setTacCaseId(freshdeskTacCaseResponseDto.getTicket());
+
+        return Optional.of(rmaCaseResponseDto);
+    }
 
     @Override
     public void delete(Long id) {
@@ -270,7 +294,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
     Helper Methods
      */
 
-    private Long parseRmaId(String displayId) {
+    private static Long parseIdFromDisplayId(String displayId, String rmaCaseIdPrefix) {
         Long rmaId;
         if (displayId.contains(rmaCaseIdPrefix)) {
             String value = displayId.substring(displayId.indexOf(rmaCaseIdPrefix) + rmaCaseIdPrefix.length());
@@ -284,12 +308,40 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         return rmaId;
     }
 
-    private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecords(Long id, String tacCaseSchemaId) {
+    private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecordsByTicketId(Long id, String tacCaseSchemaId) {
         return snakeCaseRestClient.get()
-                .uri("/custom_objects/schemas/" + tacCaseSchemaId + "/records?ticket={ticketId}", id)
+                .uri("/custom_objects/schemas/{schema-id}/records?ticket={ticketId}", tacCaseSchemaId, id)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
     }
+
+    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseByDisplayId(String displayId) {
+        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
+        return snakeCaseRestClient.get()
+                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", tacCaseSchemaId, displayId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+    }
+
+    private FreshdeskTicketResponseDto findFreshdeskTicketById(Long id) {
+        return snakeCaseRestClient.get()
+                .uri("/tickets/{id}", id)
+                .retrieve()
+                .body(FreshdeskTicketResponseDto.class);
+    }
+
+    private FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> getFreshdeskRmaCaseResponse(Long id) {
+        String rmaDisplayId = rmaCaseIdPrefix+ id;
+        String rmaSchemaId = schemaService.getSchemaIdByName("RMA Cases");
+        return snakeCaseRestClient.get()
+                .uri("/custom_objects/schemas/{schema-id}/records/{record-id}", rmaSchemaId, rmaDisplayId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+    }
+
+
 
 }
