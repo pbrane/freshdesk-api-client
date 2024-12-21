@@ -3,22 +3,26 @@ package com.beaconstrategists.freshdeskapiclient.controllers;
 import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
 import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class TicketController {
 
 
     private final TacCaseService tacCaseService;
     private final RmaCaseService rmaCaseService;
 
-    public TicketController(TacCaseService tacCaseService, RmaCaseService rmaCaseService) {
+    public TicketController(@Qualifier("FreshdeskTacCaseService") TacCaseService tacCaseService,
+                            @Qualifier("FreshdeskRmaCaseService") RmaCaseService rmaCaseService) {
         this.tacCaseService = tacCaseService;
         this.rmaCaseService = rmaCaseService;
     }
@@ -59,6 +63,15 @@ public class TicketController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/{id}/notes")
+    public ResponseEntity<TacCaseNoteResponseDto> uploadNote(
+            @PathVariable Long id,
+            @Valid @RequestBody TacCaseNoteUploadDto uploadDto) throws IOException {
+        TacCaseNoteResponseDto responseDto = tacCaseService.addNote(id, uploadDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
 
 
 /*

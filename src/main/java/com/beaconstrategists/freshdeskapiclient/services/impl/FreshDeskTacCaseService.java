@@ -28,7 +28,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("FreshdeskTacCaseService")
 public class FreshDeskTacCaseService implements TacCaseService {
 
     private final RestClient snakeCaseRestClient;
@@ -274,8 +274,11 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     }
 
+    //fixme: Should this throw an exception where the other's don't?
     @Override
     public TacCaseNoteResponseDto addNote(Long caseId, TacCaseNoteUploadDto uploadDto) throws IOException {
+
+
         return null;
     }
 

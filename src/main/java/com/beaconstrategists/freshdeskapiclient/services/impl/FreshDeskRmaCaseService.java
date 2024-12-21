@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Service
+@Service("FreshdeskRmaCaseService")
 public class FreshDeskRmaCaseService implements RmaCaseService {
 
     private final RestClient snakeCaseRestClient;
