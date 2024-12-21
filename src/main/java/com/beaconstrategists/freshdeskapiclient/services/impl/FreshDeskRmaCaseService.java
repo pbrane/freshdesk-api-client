@@ -6,7 +6,7 @@ import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
 import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
 import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
+import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;
 import org.springframework.beans.factory.annotation.Qualifier;

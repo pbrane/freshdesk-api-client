@@ -1,6 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.mappers;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.AbstractFieldPresenceAwareDto;
+import com.beaconstrategists.taccaseapiservice.dtos.AbstractFieldPresenceAwareDto;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

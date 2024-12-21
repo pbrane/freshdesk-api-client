@@ -1,6 +1,5 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseUpdateDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

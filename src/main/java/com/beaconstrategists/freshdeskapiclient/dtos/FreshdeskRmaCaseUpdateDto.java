@@ -1,7 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.RmaCaseUpdateDto;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseUpdateDto;
+import com.beaconstrategists.taccaseapiservice.dtos.RmaCaseUpdateDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;

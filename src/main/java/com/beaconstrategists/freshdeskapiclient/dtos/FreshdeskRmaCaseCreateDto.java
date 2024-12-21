@@ -1,7 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.RmaCaseCreateDto;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseCreateDto;
+import com.beaconstrategists.taccaseapiservice.dtos.RmaCaseCreateDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Getter

@@ -1,6 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.RmaCaseResponseDto;
+import com.beaconstrategists.taccaseapiservice.dtos.RmaCaseResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

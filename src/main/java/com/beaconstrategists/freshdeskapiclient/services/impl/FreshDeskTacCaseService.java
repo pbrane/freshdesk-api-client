@@ -8,7 +8,7 @@ import com.beaconstrategists.freshdeskapiclient.model.Source;
 import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
 import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
 import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
-import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
+import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;

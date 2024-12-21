@@ -1,6 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.dtos;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.TacCaseCreateDto;
+import com.beaconstrategists.taccaseapiservice.dtos.TacCaseCreateDto;
 import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;

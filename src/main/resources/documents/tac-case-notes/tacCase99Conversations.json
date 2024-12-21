@@ -1,0 +1,93 @@
+[
+  {
+    "body": "<div>Hi Frank, What is the status of this ticket?</div>",
+    "body_text": "Hi Frank, What is the status of this ticket?",
+    "id": 11000010332093,
+    "incoming": false,
+    "private": false,
+    "user_id": 3043178672118,
+    "support_email": null,
+    "source": 2,
+    "category": 3,
+    "to_emails": [
+      "david@beaconstrategists.com"
+    ],
+    "from_email": null,
+    "cc_emails": [],
+    "bcc_emails": null,
+    "email_failure_count": null,
+    "outgoing_failures": null,
+    "thread_id": null,
+    "thread_message_id": null,
+    "created_at": "2024-12-18T19:30:04Z",
+    "updated_at": "2024-12-18T19:30:04Z",
+    "last_edited_at": null,
+    "last_edited_user_id": null,
+    "attachments": [],
+    "automation_id": null,
+    "automation_type_id": null,
+    "auto_response": false,
+    "ticket_id": 99,
+    "threading_type": null,
+    "delivery_details": {
+      "failed_emails": [],
+      "pending_emails": []
+    },
+    "source_additional_info": null
+  },
+  {
+    "body": "<div>Hi Frank, What is the status of this ticket?</div>",
+    "body_text": "Hi Frank, What is the status of this ticket?",
+    "id": 11000010332094,
+    "incoming": false,
+    "private": false,
+    "user_id": 3043178672118,
+    "support_email": null,
+    "source": 2,
+    "category": 3,
+    "to_emails": [
+      "david@beaconstrategists.com"
+    ],
+    "from_email": null,
+    "cc_emails": [],
+    "bcc_emails": null,
+    "email_failure_count": null,
+    "outgoing_failures": null,
+    "thread_id": null,
+    "thread_message_id": null,
+    "created_at": "2024-12-18T19:31:18Z",
+    "updated_at": "2024-12-18T19:31:18Z",
+    "last_edited_at": "2024-12-18T19:41:45Z",
+    "last_edited_user_id": 3043178672118,
+    "attachments": [
+      {
+        "id": 11000003511128,
+        "name": "docker-compose.yml",
+        "content_type": "application/octet-stream",
+        "size": 616,
+        "created_at": "2024-12-18T19:41:15Z",
+        "updated_at": "2024-12-18T19:41:22Z",
+        "attachment_url": "https://molexhelpsandbox.attachments6.freshdesk.com/data/helpdesk/attachments/production/11000003511128/original/docker-compose.yml?Expires=1734552092&Signature=VJg41UOjGYykoccAEXWZcwF1qEm0-~j8kLlsjgcALYiHeW2y51hgbwoRLzx80FnKl6LZWep1pLdI8oxIZlBJE~0SZQ8Tiq~3mc3pqkDhfgmAQGmW18MXjMAFb49Rxc3qebq~6rEF-~1wEkbk0n9Y8FKWlZ3gUv6CV0qbizo4Uf2M3x9MJg5Wfy77hleKnuD4wMu7Zs8MnWNUVXovoxE0JmZ3G8PLhhA93-0wT8qWFFQuo2uFKbD6hXu7u1vql-ZegWi9Qzqfs6wUKAb3fRp26gWVhEHxA99a~BuVuD60MWB3ryP9BXmxIDVUkT0dJvvhDX1CEpJB7dC~b1Uu9769NA__&Key-Pair-Id=APKAJ7JARUX3F6RQIXLA"
+      },
+      {
+        "id": 11000003511130,
+        "name": "Dockerfile",
+        "content_type": "application/octet-stream",
+        "size": 1447,
+        "created_at": "2024-12-18T19:41:42Z",
+        "updated_at": "2024-12-18T19:41:45Z",
+        "attachment_url": "https://molexhelpsandbox.attachments6.freshdesk.com/data/helpdesk/attachments/production/11000003511130/original/Dockerfile?Expires=1734552093&Signature=R12ftmIZ0HM25Cegv6TJRIOSP7NAhP8xdvka1gejog7j0uS2V26cPrcGxpVPwWoLJUzi6rL9WWdenfuK8Tjrjljv4GgjQWlHN5IsPy3Tj22PFf77jNxfqJt4HpIVk4yTzanN1x3XApUND~k7fM92SBiv56cI-Hgq6YBbvekTYFUc5EF5REAWtLnpY-mcOOi4X~d0XpCl757k5UR~eiA0S-0E43yrB~8EkpFcloe62FCZWn-rRP1ZustDlgbIQK8hbWOfL5T8VAOXC6vLWgxkgvI3dzuswTj81ZCGoNgEDrB4BzjEcwnukRKDxDaT5DpP~vuQ~BW3FIyeG4oCp04USw__&Key-Pair-Id=APKAJ7JARUX3F6RQIXLA"
+      }
+    ],
+    "automation_id": null,
+    "automation_type_id": null,
+    "auto_response": false,
+    "ticket_id": 99,
+    "threading_type": null,
+    "delivery_details": {
+      "failed_emails": [],
+      "pending_emails": []
+    },
+    "source_additional_info": null
+  }
+]

@@ -1,6 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.controllers;
 
-import com.beaconstrategists.taccaseapiservice.controllers.dto.*;
+import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
 import jakarta.validation.Valid;
