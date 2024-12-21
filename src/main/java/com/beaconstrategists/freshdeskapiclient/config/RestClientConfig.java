@@ -50,7 +50,7 @@ public class RestClientConfig {
     @Bean
     @Primary
     @Qualifier("snakeCaseRestClient")
-    public RestClient snakeCaserestClient(@Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {
+    public RestClient snakeCaseRestClient(@Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {
         // Create custom JSON message converter
         MappingJackson2HttpMessageConverter messageConverter =
                 new MappingJackson2HttpMessageConverter(snakeCaseObjectMapper);

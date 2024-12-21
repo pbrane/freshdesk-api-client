@@ -3,6 +3,7 @@ package com.beaconstrategists.freshdeskapiclient.services.impl;
 import com.beaconstrategists.freshdeskapiclient.dtos.*;
 import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
+import com.beaconstrategists.freshdeskapiclient.model.FreshdeskConversationSource;
 import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
 import com.beaconstrategists.freshdeskapiclient.model.Source;
 import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
@@ -12,6 +13,7 @@ import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.TacCaseService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,6 +28,7 @@ import org.springframework.web.client.RestClient;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service("FreshdeskTacCaseService")
@@ -45,6 +48,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
     private final CompanyService companyService;
 
     private final GenericModelMapper genericModelMapper;
+    private final ObjectMapper snakeCaseObjectMapper;
 
     @Value("${FD_CUSTOMER_NAME:Beacon}")
     private String companyName;
@@ -61,13 +65,15 @@ public class FreshDeskTacCaseService implements TacCaseService {
                                    SchemaService schemaService,
                                    CompanyService companyService,
                                    GenericModelMapper genericModelMapper,
-                                   @Qualifier("fieldPresenceSnakeCaseSerializingRestClient") RestClient fieldPresenseRestClient) {
+                                   @Qualifier("fieldPresenceSnakeCaseSerializingRestClient") RestClient fieldPresenseRestClient,
+                                   @Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {
 
         this.snakeCaseRestClient = snakeCaseRestClient;
         this.companyService = companyService;
         this.genericModelMapper = genericModelMapper;
         this.schemaService = schemaService;
         this.fieldPresenseRestClient = fieldPresenseRestClient;
+        this.snakeCaseObjectMapper = snakeCaseObjectMapper;
     }
 
     /*
@@ -77,7 +83,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
     public TacCaseResponseDto create(TacCaseCreateDto tacCaseCreateDto) {
 
         FreshdeskTicketCreateDto freshdeskTicketCreateDto = buildCreateTicket(tacCaseCreateDto, defaultResponderId);
-        FreshdeskTicketResponseDto freshdeskTicketResponseDto = saveFreshdeskTicket(freshdeskTicketCreateDto, snakeCaseRestClient);
+        FreshdeskTicketResponseDto freshdeskTicketResponseDto = createFreshdeskTicket(freshdeskTicketCreateDto);
 
         assert freshdeskTicketResponseDto != null;  //fixme: what happens here if null
 
@@ -220,6 +226,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
     /*
      * Add attachments to an existing ticket
      * fixme: this should be addAttachment perhaps?
+     *  fixme: I have already worked on this?????????????
      */
     public FreshdeskTicketResponseDto addAttachments(Long ticketId, List<TicketAttachmentUploadDto> attachments) {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
@@ -276,20 +283,70 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     //fixme: Should this throw an exception where the other's don't?
     @Override
-    public TacCaseNoteResponseDto addNote(Long caseId, TacCaseNoteUploadDto uploadDto) throws IOException {
+    public TacCaseNoteResponseDto addNote(Long ticketId, TacCaseNoteUploadDto uploadDto) throws IOException {
 
+        FreshdeskTicketCreateNoteDto dto = FreshdeskTicketCreateNoteDto.builder()
+                .body(uploadDto.getText())
+                .privateField(false)
+                .incoming(true)
+                .build();
 
-        return null;
+        FreshdeskTicketNoteResponseDto freshdeskTicketNoteDto = createFreshdeskTicketNote(dto, ticketId);
+
+        return TacCaseNoteResponseDto.builder()
+                .id(freshdeskTicketNoteDto.getId())
+                .author(uploadDto.getAuthor())
+                .tacCaseId(ticketId)
+                .date(freshdeskTicketNoteDto.getCreatedAt())
+                .build();
     }
 
     @Override
     public List<TacCaseNoteResponseDto> getAllNotes(Long caseId) {
-        return List.of();
+
+        //first get all the notes of a ticket
+        List<FreshdeskTicketConversationDto> freshdeskTicketConversations = findFreshdeskTicketConversations(caseId);
+
+        return freshdeskTicketConversations.stream()
+                .filter(freshdesk -> freshdesk.getSource() == FreshdeskConversationSource.Note)
+                .map(freshdesk -> TacCaseNoteResponseDto.builder()
+                        .id(freshdesk.getId())
+                        .tacCaseId(caseId)
+                        .author("FD User ID:"+freshdesk.getUserId().toString())
+                        .date(freshdesk.getCreatedAt())
+                        .build())
+                .toList();
     }
 
     @Override
     public TacCaseNoteDownloadDto getNote(Long caseId, Long noteId) {
-        return null;
+        //first get all the conversations of a ticket
+        List<FreshdeskTicketConversationDto> freshdeskTicketConversations = findFreshdeskTicketConversations(caseId);
+
+        List<TacCaseNoteDownloadDto> freshdeskTicketConversationsList = freshdeskTicketConversations.stream()
+                .filter(freshdesk -> Objects.equals(freshdesk.getId(), noteId))
+                .map(freshdesk -> TacCaseNoteDownloadDto.builder()
+                        .id(freshdesk.getId())
+                        .tacCaseId(caseId)
+                        .author("FD User ID:" + freshdesk.getUserId().toString())
+                        .date(freshdesk.getCreatedAt())
+                        .text(freshdesk.getBodyText())
+                        .build())
+                .toList();
+        Optional<TacCaseNoteDownloadDto> tacCaseNoteDownloadDto = freshdeskTicketConversationsList.stream().findFirst();
+
+        if (tacCaseNoteDownloadDto.isPresent()) {
+            return TacCaseNoteDownloadDto.builder()
+                    .id(tacCaseNoteDownloadDto.get().getId())
+                    .tacCaseId(tacCaseNoteDownloadDto.get().getTacCaseId())
+                    .author(tacCaseNoteDownloadDto.get().getAuthor())
+                    .date(tacCaseNoteDownloadDto.get().getDate())
+                    .text(tacCaseNoteDownloadDto.get().getText())
+                    .build();
+        } else {
+            throw new IllegalArgumentException("No note found with noteId: " + noteId +" for Case ID: "+ caseId);
+        }
+
     }
 
     @Override
@@ -320,6 +377,10 @@ public class FreshDeskTacCaseService implements TacCaseService {
     /*
     Helper Methods
      */
+
+    /*
+    TAC Cases
+     */
     private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> updateFreshdeskTacCase(String displayId, FreshdeskTacCaseUpdateRequest updateRequest) {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
         return snakeCaseRestClient.put()
@@ -349,8 +410,28 @@ public class FreshDeskTacCaseService implements TacCaseService {
                 .body(FreshdeskTicketResponseDto.class);
     }
 
-    private static FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto>
-    createFreshdeskRmaCase(String rmaCaseSchemaId,
+    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> updateFreshdeskTacCase(
+            FreshdeskDataCreateRequest<FreshdeskTacCaseCreateDto> freshdeskTacCaseCreateRequest) {
+
+        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
+        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> responseTacCase = snakeCaseRestClient.post()
+                .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(freshdeskTacCaseCreateRequest)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        assert responseTacCase != null;
+        return responseTacCase;
+    }
+
+
+
+    /*
+    RMA Cases
+     */
+    //fixme: why isn't this used?
+    private static FreshdeskCaseResponse<FreshdeskRmaCaseResponseDto> createFreshdeskRmaCase(String rmaCaseSchemaId,
                            FreshdeskDataCreateRequest<FreshdeskRmaCaseCreateDto> freshdeskRmaCaseCreateRequest,
                            RestClient restClient) {
 
@@ -366,22 +447,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
 
-    private FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>
-    updateFreshdeskTacCase(FreshdeskDataCreateRequest<FreshdeskTacCaseCreateDto> freshdeskTacCaseCreateRequest) {
-
-        String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
-        FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> responseTacCase = snakeCaseRestClient.post()
-                .uri("/custom_objects/schemas/{schemaId}/records", tacCaseSchemaId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(freshdeskTacCaseCreateRequest)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
-        assert responseTacCase != null;
-        return responseTacCase;
-    }
-
-    private static FreshdeskTicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
+    private FreshdeskTicketCreateDto buildCreateTicket(TacCaseCreateDto tacCaseDto, String responderId) {
 
         return FreshdeskTicketCreateDto.builder()
                 .email(tacCaseDto.getContactEmail())
@@ -398,13 +464,32 @@ public class FreshDeskTacCaseService implements TacCaseService {
                 .build();
     }
 
-    private static FreshdeskTicketResponseDto saveFreshdeskTicket(FreshdeskTicketCreateDto dto, RestClient restClient) {
-        return restClient.post()
+    private FreshdeskTicketResponseDto createFreshdeskTicket(FreshdeskTicketCreateDto dto) {
+        return snakeCaseRestClient.post()
                 .uri("/tickets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(dto)
                 .retrieve()
                 .body(FreshdeskTicketResponseDto.class);
+    }
+
+    private FreshdeskTicketNoteResponseDto createFreshdeskTicketNote(FreshdeskTicketCreateNoteDto dto, Long id) {
+        return snakeCaseRestClient.post()
+                .uri("/tickets/{id}/notes", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto)
+                .retrieve()
+                .body(FreshdeskTicketNoteResponseDto.class);
+    }
+
+    private List<FreshdeskTicketConversationDto> findFreshdeskTicketConversations(Long id) {
+
+        return snakeCaseRestClient.get()
+                .uri("/tickets/{id}/conversations", id)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+
     }
 
     private TacCaseResponseDto findFreshdeskTacCaseByTicketId(Long id) {

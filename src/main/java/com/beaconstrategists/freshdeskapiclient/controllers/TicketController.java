@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -70,6 +71,19 @@ public class TicketController {
             @Valid @RequestBody TacCaseNoteUploadDto uploadDto) throws IOException {
         TacCaseNoteResponseDto responseDto = tacCaseService.addNote(id, uploadDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @GetMapping("/{id}/notes")
+    public ResponseEntity<List<TacCaseNoteResponseDto>> getAllNotes(@PathVariable Long id) {
+        List<TacCaseNoteResponseDto> notes = tacCaseService.getAllNotes(id);
+        return new ResponseEntity<>(notes, HttpStatus.OK);
+    }
+
+    @GetMapping("/{caseId}/notes/{noteId}")
+    public ResponseEntity<TacCaseNoteDownloadDto> getNote(
+            @PathVariable Long caseId, @PathVariable Long noteId) {
+        TacCaseNoteDownloadDto dto = tacCaseService.getNote(caseId, noteId);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
 

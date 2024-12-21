@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
+//fixme: We have two Jackson Configuration Classes
+
+
 @Configuration
 public class JacksonSerializerConfig {
     @Bean
