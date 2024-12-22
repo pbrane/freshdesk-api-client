@@ -171,16 +171,4 @@
         </profile>
     </profiles>
 
-<!--    <repositories>
-        <repository>
-            <id>custom-local-repo</id>
-            <url>file://${project.basedir}/lib</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>-->
 </project>

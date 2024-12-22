@@ -86,6 +86,13 @@ public class TicketController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/attachments")
+    public ResponseEntity<List<TacCaseAttachmentResponseDto>> getAllAttachments(@PathVariable Long id) {
+        List<TacCaseAttachmentResponseDto> attachments = tacCaseService.getAllAttachments(id);
+        return new ResponseEntity<>(attachments, HttpStatus.OK);
+    }
+
+
 
 
 /*

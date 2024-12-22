@@ -8,7 +8,7 @@
 curl -v -u "$FD_API_KEY":X \
   -F "attachments[]=@./bluey.png" \
   -F "attachments[]=@./Bluey-Wallpaper.jpg" \
-  -X PUT "$FD_BASE_URI/tickets/11" |jq > sandbox_ticket_11_add_attachments.json
+  -X PUT "$FD_BASE_URI/tickets/99" |jq > sandbox_ticket_99_add_attachments.json
 
 ## This creates a new ticket with two attachments
 #curl -v -u "$FD_API_KEY":X \

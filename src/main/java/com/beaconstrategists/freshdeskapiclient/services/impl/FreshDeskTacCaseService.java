@@ -30,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service("FreshdeskTacCaseService")
 public class FreshDeskTacCaseService implements TacCaseService {
@@ -258,7 +259,24 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     @Override
     public List<TacCaseAttachmentResponseDto> getAllAttachments(Long caseId) {
-        return List.of();
+        // Retrieve the ticket and its attachments
+        FreshdeskTicketResponseDto freshdeskTicketResponseDto = findFreshdeskTicketById(caseId);
+        List<FreshdeskAttachment> freshdeskAttachments = freshdeskTicketResponseDto.getAttachments();
+
+        // Handle potential null attachments
+        if (freshdeskAttachments == null || freshdeskAttachments.isEmpty()) {
+            return List.of(); // Return an empty list if no attachments are found
+        }
+
+        // Map attachments to TacCaseAttachmentResponseDto and collect to a list
+        return freshdeskAttachments.stream()
+                .map(attachment -> TacCaseAttachmentResponseDto.builder()
+                        .id(attachment.getId())
+                        .name(attachment.getName())
+                        .mimeType(attachment.getContentType())
+                        .description(attachment.getAttachmentUrl())
+                        .build())
+                .toList();
     }
 
     @Override
@@ -320,33 +338,22 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     @Override
     public TacCaseNoteDownloadDto getNote(Long caseId, Long noteId) {
-        //first get all the conversations of a ticket
+        // Retrieve all the conversations of a ticket
         List<FreshdeskTicketConversationDto> freshdeskTicketConversations = findFreshdeskTicketConversations(caseId);
 
-        List<TacCaseNoteDownloadDto> freshdeskTicketConversationsList = freshdeskTicketConversations.stream()
+        // Find and map the note to TacCaseNoteDownloadDto
+        return freshdeskTicketConversations.stream()
                 .filter(freshdesk -> Objects.equals(freshdesk.getId(), noteId))
                 .map(freshdesk -> TacCaseNoteDownloadDto.builder()
                         .id(freshdesk.getId())
                         .tacCaseId(caseId)
-                        .author("FD User ID:" + freshdesk.getUserId().toString())
+                        .author("FD User ID:" + freshdesk.getUserId())
                         .date(freshdesk.getCreatedAt())
                         .text(freshdesk.getBodyText())
                         .build())
-                .toList();
-        Optional<TacCaseNoteDownloadDto> tacCaseNoteDownloadDto = freshdeskTicketConversationsList.stream().findFirst();
-
-        if (tacCaseNoteDownloadDto.isPresent()) {
-            return TacCaseNoteDownloadDto.builder()
-                    .id(tacCaseNoteDownloadDto.get().getId())
-                    .tacCaseId(tacCaseNoteDownloadDto.get().getTacCaseId())
-                    .author(tacCaseNoteDownloadDto.get().getAuthor())
-                    .date(tacCaseNoteDownloadDto.get().getDate())
-                    .text(tacCaseNoteDownloadDto.get().getText())
-                    .build();
-        } else {
-            throw new IllegalArgumentException("No note found with noteId: " + noteId +" for Case ID: "+ caseId);
-        }
-
+                .findFirst() // Get the first matching note
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No note found with noteId: " + noteId + " for Case ID: " + caseId));
     }
 
     @Override

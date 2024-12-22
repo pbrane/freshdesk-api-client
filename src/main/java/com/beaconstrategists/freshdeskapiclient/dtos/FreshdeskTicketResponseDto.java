@@ -109,7 +109,7 @@ public class FreshdeskTicketResponseDto {
      private List<String> tags;
 
      @JsonProperty("attachments")
-     private List<TicketAttachmentResponseDto> attachments;
+     private List<FreshdeskAttachment> attachments;
 
      @JsonProperty("source_additional_info")
      private String sourceAdditionalInfo;
