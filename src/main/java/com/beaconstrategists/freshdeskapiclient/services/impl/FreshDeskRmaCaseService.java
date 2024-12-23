@@ -75,10 +75,10 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         //Find the TAC Case
         Long id = rmaCaseCreateDto.getTacCaseId();
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
-        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords = findFreshdeskTacCaseRecordsByTicketId(id, tacCaseSchemaId);
-        assert freshdeskTacCaseResponseRecords != null;
+        FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskCaseResponseRecords = findFreshdeskTacCaseRecordsByTicketId(id, tacCaseSchemaId);
+        assert freshdeskCaseResponseRecords != null;
 
-        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
+        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskCaseResponseRecords.getRecords().stream().findFirst();
         FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskCaseResponse::getData).orElse(null);
         //get the record's identifier, this is what we need to update the record
         String tacCaseDisplayId = record.get().getDisplayId();
@@ -308,7 +308,7 @@ public class FreshDeskRmaCaseService implements RmaCaseService {
         return rmaId;
     }
 
-    private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecordsByTicketId(Long id, String tacCaseSchemaId) {
+    private FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecordsByTicketId(Long id, String tacCaseSchemaId) {
         return snakeCaseRestClient.get()
                 .uri("/custom_objects/schemas/{schema-id}/records?ticket={ticketId}", tacCaseSchemaId, id)
                 .retrieve()

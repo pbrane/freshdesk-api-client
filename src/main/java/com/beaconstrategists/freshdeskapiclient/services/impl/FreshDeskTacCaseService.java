@@ -1,5 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.services.impl;
 
+import com.beaconstrategists.freshdeskapiclient.config.RestClientConfig;
 import com.beaconstrategists.freshdeskapiclient.dtos.*;
 import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,17 +26,21 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service("FreshdeskTacCaseService")
 public class FreshDeskTacCaseService implements TacCaseService {
 
+    private final RestClientConfig restClientConfig;
     private final RestClient snakeCaseRestClient;
 
     /*
@@ -62,13 +68,13 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     private final SchemaService schemaService;
 
-    public FreshDeskTacCaseService(@Qualifier("snakeCaseRestClient") RestClient snakeCaseRestClient,
+    public FreshDeskTacCaseService(RestClientConfig restClientConfig, @Qualifier("snakeCaseRestClient") RestClient snakeCaseRestClient,
                                    SchemaService schemaService,
                                    CompanyService companyService,
                                    GenericModelMapper genericModelMapper,
                                    @Qualifier("fieldPresenceSnakeCaseSerializingRestClient") RestClient fieldPresenseRestClient,
                                    @Qualifier("snakeCaseObjectMapper") ObjectMapper snakeCaseObjectMapper) {
-
+        this.restClientConfig = restClientConfig;
         this.snakeCaseRestClient = snakeCaseRestClient;
         this.companyService = companyService;
         this.genericModelMapper = genericModelMapper;
@@ -76,6 +82,86 @@ public class FreshDeskTacCaseService implements TacCaseService {
         this.fieldPresenseRestClient = fieldPresenseRestClient;
         this.snakeCaseObjectMapper = snakeCaseObjectMapper;
     }
+
+    @Override
+    public List<TacCaseResponseDto> listTacCases(OffsetDateTime caseCreateDateFrom,
+                                                 OffsetDateTime caseCreateDateTo,
+                                                 OffsetDateTime caseCreateDateSince,
+                                                 List<CaseStatus> caseStatus, String logic) {
+
+        String schemaId = schemaService.getSchemaIdByName("TAC Cases");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+        // Build the query parameters dynamically
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
+
+        if (caseCreateDateFrom != null && caseCreateDateTo != null) {
+            uriComponentsBuilder.queryParam("created_time[gt]", caseCreateDateFrom.format(formatter))
+                    .queryParam("created_time[lt]", caseCreateDateTo.format(formatter));
+        } else if (caseCreateDateSince != null) {
+            uriComponentsBuilder.queryParam("created_time[gt]", caseCreateDateSince.format(formatter));
+        }
+
+        //fixme: to get this to work, we will have to query tickets then fetch the matching TAC Cases
+        if (caseStatus != null && !caseStatus.isEmpty()) {
+            for (CaseStatus status : caseStatus) {
+                uriComponentsBuilder.queryParam("status", status.getValue());
+            }
+        }
+
+        RestClient restClient = snakeCaseRestClient.mutate()
+                .baseUrl(restClientConfig.getFreshdeskBaseUri().endsWith("/")
+                        ? restClientConfig.getFreshdeskBaseUri()
+                        : restClientConfig.getFreshdeskBaseUri() + "/") // Ensure trailing "/"
+                .build();
+
+        // Pass the relative path without leading '/' and append the query parameters
+        FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> responseRecords = restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("custom_objects/schemas/" + schemaId + "/records") // No leading '/'
+                        .query(Objects.requireNonNull(uriComponentsBuilder.build().getQuery()))
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+        assert responseRecords != null;
+
+        List<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> freshdeskCaseResponses = responseRecords.getRecords().stream().toList();
+        List<TacCaseResponseDto> tacCaseResponseDtos = freshdeskCaseResponses.stream()
+                .map(this::mapToTacCaseResponseDto)
+                .toList();
+
+        // Return the list of records
+        return tacCaseResponseDtos;
+    }
+
+    private TacCaseResponseDto mapToTacCaseResponseDto(FreshdeskCaseResponse<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponse) {
+
+        FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = freshdeskTacCaseResponse.getData();
+        TacCaseResponseDto tacCaseResponseDto = genericModelMapper.map(freshdeskTacCaseResponseDto, TacCaseResponseDto.class);
+        tacCaseResponseDto.setCaseNumber(freshdeskTacCaseResponse.getDisplayId());
+        tacCaseResponseDto.setId(freshdeskTacCaseResponseDto.getTicket());
+
+        //fixme: someday we need to fix this because this will be costly to the responsiveness of the API
+        //need to get the ticket for each of the responses to set
+        FreshdeskTicketResponseDto freshdeskTicketResponseDto = findFreshdeskTicketById(freshdeskTacCaseResponseDto.getTicket());
+        tacCaseResponseDto.setCaseStatus(CaseStatus.valueOf(freshdeskTicketResponseDto.getStatusForTickets().name()));
+        tacCaseResponseDto.setCasePriority(CasePriorityEnum.valueOf(freshdeskTicketResponseDto.getPriorityForTickets().name()));
+        tacCaseResponseDto.setSubject(freshdeskTicketResponseDto.getSubject());
+
+        return tacCaseResponseDto;
+
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String formatDate(OffsetDateTime dateTime) {
+        return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
 
     /*
      * Create a TAC Case in Freshdesk
@@ -98,6 +184,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
         FreshdeskTacCaseResponseDto data = freshdeskTacCaseResponse.getData();
 
         TacCaseResponseDto responseDto = genericModelMapper.map(data, TacCaseResponseDto.class);
+        responseDto.setCaseNumber(freshdeskTacCaseResponse.getDisplayId());
         responseDto.setSubject(freshdeskTicketResponseDto.getSubject());
         responseDto.setId(freshdeskTicketResponseDto.getId());
 
@@ -130,25 +217,20 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
 /*
         Now update the Freshdesk TAC Case Custom Object
-        Now we need to find that TAC Case associated with this Freshdesk Ticket
-        Need the Schema ID to build the URL
-*/
-
-/*
+        So, we need to find that TAC Case associated with this Freshdesk Ticket
+        We need the Schema ID to build the URL
         The response body we are looking for here is the same as the response from
-        a create but since a query, by design, could be more than one "record"
-        or row, the response comes wrapped in an array called "records".
+        a create but since this is a Freshdesk Query, by design, there could be more than one "record",
+        or row, and the response comes wrapped in an array called "records". In our case,
+        there will ever only be one record returned.
 */
-        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseResponseRecords =
+        FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskCaseResponseRecords =
                 findFreshdeskTacCaseRecords(id);
-        // I don't think this response will ever be null
-        //assert freshdeskTacCaseResponseRecords != null;
-
 /*
         If there is a record, there will only be one as this is a 1:1 relationship by design
         The record ID here is not an integer like with a ticket
 */
-        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> freshdeskCaseResponse = freshdeskTacCaseResponseRecords.getRecords().stream().findFirst();
+        Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> freshdeskCaseResponse = freshdeskCaseResponseRecords.getRecords().stream().findFirst();
         FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = freshdeskCaseResponse.map(FreshdeskCaseResponse::getData).orElse(null);
 
         //get the record's identifier, this is what we need to update the record
@@ -188,6 +270,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
         tacCaseResponseDto.setSubject(freshdeskTicketResponseDto.getSubject());
         tacCaseResponseDto.setCaseStatus(status);
         tacCaseResponseDto.setCasePriority(priority);
+        tacCaseResponseDto.setCaseNumber(tacCaseDisplayId);
         return tacCaseResponseDto;
     }
 
@@ -201,11 +284,18 @@ public class FreshDeskTacCaseService implements TacCaseService {
 
     @Override
     public Optional<TacCaseResponseDto> findById(Long id) {
+
+/*
+         These finds will never be null.
+         If any of the RestClient queries fail to find this ID,
+         The RestClient will result in an HttpClientErrorException.NotFound
+         and will propagate back to the Controller.
+*/
+
         TacCaseResponseDto tacCaseResponseDto = findFreshdeskTacCaseByTicketId(id);
         tacCaseResponseDto.setId(id);
 
         FreshdeskTicketResponseDto ticketResponseDto = findFreshdeskTicketById(id);
-        assert ticketResponseDto != null;
 
         tacCaseResponseDto.setSubject(ticketResponseDto.getSubject());
         tacCaseResponseDto.setCaseStatus(CaseStatus.valueOf(ticketResponseDto.getStatusForTickets().name()));
@@ -251,10 +341,36 @@ public class FreshDeskTacCaseService implements TacCaseService {
         }
     }
 
-
     @Override
-    public TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException {
-        return null;
+    public TacCaseAttachmentResponseDto addAttachment(Long ticketId, TacCaseAttachmentUploadDto uploadDto) throws IOException {
+        // Validate the uploaded file
+        MultipartFile file = uploadDto.getFile();
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File must be provided and not empty");
+        }
+
+        validateFileType(file);
+
+        // Create the multipart request body
+        MultiValueMap<String, HttpEntity<?>> multipartMap = createMultipartMap(file);
+
+        try {
+            FreshdeskTicketResponseDto dto = snakeCaseRestClient.put()
+                    .uri("/tickets/{ticketId}", ticketId)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(multipartMap)
+                    .retrieve()
+                    .body(FreshdeskTicketResponseDto.class);
+
+            if (dto == null || dto.getAttachments() == null || dto.getAttachments().isEmpty()) {
+                throw new RuntimeException("Freshdesk response does not contain any attachments.");
+            }
+
+            return mapToAttachmentResponse(dto, file.getOriginalFilename());
+
+        } catch (Exception e) {
+            throw new RestClientException("Failed to upload attachment to Freshdesk: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -280,8 +396,29 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
     @Override
-    public void getAttachment(Long caseId, Long attachmentId) {
+    public TacCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId) {
+        // Retrieve the ticket and its attachments
+        FreshdeskTicketResponseDto freshdeskTicketResponseDto = findFreshdeskTicketById(caseId);
+        if (freshdeskTicketResponseDto == null) {
+            throw new IllegalArgumentException("No ticket found for TAC Case: " + caseId);
+        }
 
+        List<FreshdeskAttachment> freshdeskAttachments = freshdeskTicketResponseDto.getAttachments();
+        if (freshdeskAttachments == null || freshdeskAttachments.isEmpty()) {
+            throw new IllegalArgumentException("No attachments found for TAC Case: " + caseId);
+        }
+
+        // Filter, map, and return the first matching attachment
+        return freshdeskAttachments.stream()
+                .filter(attachment -> Objects.equals(attachment.getId(), attachmentId))
+                .findFirst()
+                .map(attachment -> TacCaseAttachmentResponseDto.builder()
+                        .id(attachment.getId())
+                        .name(attachment.getName())
+                        .mimeType(attachment.getContentType())
+                        .description(attachment.getAttachmentUrl())
+                        .build())
+                .orElseThrow(() -> new IllegalArgumentException("No attachment found for TAC Case: " + caseId + " with attachment ID: " + attachmentId));
     }
 
     @Override
@@ -367,17 +504,9 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
     @Override
-    public List<TacCaseResponseDto> listTacCases(OffsetDateTime caseCreateDateFrom, OffsetDateTime caseCreateDateTo, OffsetDateTime caseCreateDateSince, List<CaseStatus> caseStatus, String logic) {
-        return List.of();
-    }
-
-    @Override
     public List<RmaCaseResponseDto> listRmaCases(Long id) {
         return List.of();
     }
-
-
-
 
 
 
@@ -399,7 +528,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
                 });
     }
 
-    private FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecords(Long id) {
+    private FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> findFreshdeskTacCaseRecords(Long id) {
         String tacCaseSchemaId = schemaService.getSchemaIdByName("TAC Cases");
         return snakeCaseRestClient.get()
                 .uri("/custom_objects/schemas/" + tacCaseSchemaId + "/records?ticket={ticketId}", id)
@@ -500,7 +629,7 @@ public class FreshDeskTacCaseService implements TacCaseService {
     }
 
     private TacCaseResponseDto findFreshdeskTacCaseByTicketId(Long id) {
-        FreshdeskTacCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseRecords = findFreshdeskTacCaseRecords(id);
+        FreshdeskCaseResponseRecords<FreshdeskTacCaseResponseDto> freshdeskTacCaseRecords = findFreshdeskTacCaseRecords(id);
         Optional<FreshdeskCaseResponse<FreshdeskTacCaseResponseDto>> record = freshdeskTacCaseRecords.getRecords().stream().findFirst();
         FreshdeskTacCaseResponseDto freshdeskTacCaseResponseDto = record.map(FreshdeskCaseResponse::getData).orElse(null);
         return genericModelMapper.map(freshdeskTacCaseResponseDto, TacCaseResponseDto.class);
@@ -549,5 +678,62 @@ public class FreshDeskTacCaseService implements TacCaseService {
             return null;
         }
     }
-    
+
+    /**
+     * Validates the MIME type of the uploaded file.
+     * @param file the uploaded MultipartFile
+     */
+    private void validateFileType(MultipartFile file) {
+        List<String> allowedMimeTypes = Arrays.asList(
+                "application/pdf",
+                "application/msword",
+                "text/plain",
+                "image/jpeg",
+                "image/png",
+                "image/gif",
+                "application/zip",
+                "application/x-7z-compressed",
+                "application/x-rar-compressed",
+                "application/json",
+                "application/xml",
+                "text/csv"); // Extend as needed
+
+        // Validate file type
+        if (!allowedMimeTypes.contains(file.getContentType())) {
+            throw new IllegalArgumentException("Unsupported file type: " + file.getContentType()
+                    + ". Allowed types: " + String.join(", ", allowedMimeTypes));
+        }
+
+    }
+
+    private MultiValueMap<String, HttpEntity<?>> createMultipartMap(MultipartFile file) throws IOException {
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        bodyBuilder
+                .part("attachments[]", new ByteArrayResource(file.getBytes()) {
+                    @Override
+                    public String getFilename() {
+                        return file.getOriginalFilename();
+                    }
+                });
+
+        return bodyBuilder.build();
+    }
+
+    private TacCaseAttachmentResponseDto mapToAttachmentResponse(FreshdeskTicketResponseDto ticketResponseDto, String fileName) {
+        // Find the attachment matching the fileName
+        FreshdeskAttachment freshdeskAttachment = ticketResponseDto.getAttachments().stream()
+                .filter(attachment -> attachment.getName().equals(fileName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Attachment with name '" + fileName + "' not found"));
+
+        // Map the FreshdeskAttachment to TacCaseAttachmentResponseDto
+        return TacCaseAttachmentResponseDto.builder()
+                .id(freshdeskAttachment.getId())
+                .mimeType(freshdeskAttachment.getContentType())
+                .name(freshdeskAttachment.getName())
+                .description(freshdeskAttachment.getAttachmentUrl())
+                .size(freshdeskAttachment.getSize().floatValue())
+                .build();
+    }
+
 }

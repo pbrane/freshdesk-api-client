@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "display_id": "_2-65",
+      "created_time": 1734536902520,
+      "updated_time": 1734536902520,
+      "data": {
+        "problem_description": "Intermittent connectivity loss in the Redmond data center.",
+        "case_solution_description": null,
+        "account_number": null,
+        "rma_needed": null,
+        "ticket": 99,
+        "case_owner": null,
+        "installation_country": "US",
+        "customer_tracking_number": "ABC-123",
+        "business_impact": "Local to Redmond",
+        "related_dispatch_count": null,
+        "product_name": "OMP X100",
+        "contact_email": "jimmy@beaconstrtategists.com",
+        "case_created_date": null,
+        "first_response_date": null,
+        "faulty_serial_number": null,
+        "product_serial_number": "SN-1235",
+        "product_firmware_version": "FW-2.0.0",
+        "case_number": null,
+        "case_closed_date": null,
+        "key": "ID: 99; Fiber Connectivity Issue"
+      },
+      "version": 1
+    }
+  ],
+  "_links": {
+    "count": {
+      "href": "/schemas/10563011/records/count?ticket=99"
+    }
+  }
+}
