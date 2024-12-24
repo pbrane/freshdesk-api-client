@@ -9,17 +9,17 @@ COPY mvnw .
 COPY .mvn .mvn
 
 # Copy the custom dependency JAR file
-COPY lib/tac-case-api-service-monolith-0.1.14-SNAPSHOT.jar /app/lib/
+COPY lib/tac-case-api-service-monolith-0.1.16-SNAPSHOT.jar /app/lib/
 
 # Ensure the Maven wrapper script is executable
 RUN chmod +x mvnw
 
 # Install the custom dependency into the default Maven local repository
 RUN ./mvnw install:install-file \
-    -Dfile=/app/lib/tac-case-api-service-monolith-0.1.14-SNAPSHOT.jar \
+    -Dfile=/app/lib/tac-case-api-service-monolith-0.1.16-SNAPSHOT.jar \
     -DgroupId=com.beaconstrategists \
     -DartifactId=tac-case-api-service-monolith \
-    -Dversion=0.1.14-SNAPSHOT \
+    -Dversion=0.1.16-SNAPSHOT \
     -Dpackaging=jar
 
 # Copy the project files
@@ -32,7 +32,7 @@ RUN chmod +x mvnw
 # Build the application
 RUN ./mvnw clean package -DskipTests -P container-build
 #RUN ./mvnw clean package -Pcontainer-build -DskipTests \
-#    -Dcustom.repo.file=./lib/tac-case-api-service-monolith-0.1.14-SNAPSHOT.jar
+#    -Dcustom.repo.file=./lib/tac-case-api-service-monolith-0.1.16-SNAPSHOT.jar
 
 # Final image
 FROM eclipse-temurin:21-jdk-noble

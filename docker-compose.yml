@@ -1,7 +1,7 @@
 services:
   freshdesk-api-client:
     container_name: freshdesk-api
-    image: pbranestrategy/freshdesk-api-client:0.0.1
+    image: pbranestrategy/freshdesk-api-client:0.1.2
     environment:
       - FD_API_KEY=<your api key>
       - FD_BASE_URI=https://<your freshdesk host>/api/v2
