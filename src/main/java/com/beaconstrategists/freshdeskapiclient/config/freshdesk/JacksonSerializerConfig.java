@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.config;
+package com.beaconstrategists.freshdeskapiclient.config.freshdesk;
 
 import com.beaconstrategists.freshdeskapiclient.dtos.freshdesk.FreshdeskTicketUpdateDto;
 import com.beaconstrategists.taccaseapiservice.config.api.GenericFieldPresenceSnakeCaseJsonSerializer;

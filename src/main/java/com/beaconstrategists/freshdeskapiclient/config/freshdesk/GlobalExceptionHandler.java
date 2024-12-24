@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.config;
+package com.beaconstrategists.freshdeskapiclient.config.freshdesk;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

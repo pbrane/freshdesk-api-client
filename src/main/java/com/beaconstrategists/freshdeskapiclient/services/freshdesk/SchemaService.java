@@ -1,7 +1,6 @@
-package com.beaconstrategists.freshdeskapiclient.services;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;

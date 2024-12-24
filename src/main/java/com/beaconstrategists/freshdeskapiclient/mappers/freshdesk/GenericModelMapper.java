@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.mappers;
+package com.beaconstrategists.freshdeskapiclient.mappers.freshdesk;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

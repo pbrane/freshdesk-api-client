@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.config;
+package com.beaconstrategists.freshdeskapiclient.config.freshdesk;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;

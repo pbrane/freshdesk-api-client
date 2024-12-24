@@ -1,8 +1,8 @@
 package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
-import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
-import com.beaconstrategists.freshdeskapiclient.model.Source;
-import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.PriorityForTickets;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.Source;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.StatusForTickets;
 import lombok.Builder;
 import lombok.Value;
 

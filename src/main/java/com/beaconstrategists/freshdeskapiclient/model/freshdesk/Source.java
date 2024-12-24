@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.model;
+package com.beaconstrategists.freshdeskapiclient.model.freshdesk;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

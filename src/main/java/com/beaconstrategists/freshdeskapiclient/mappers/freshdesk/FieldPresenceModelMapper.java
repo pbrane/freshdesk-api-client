@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.mappers;
+package com.beaconstrategists.freshdeskapiclient.mappers.freshdesk;
 
 import com.beaconstrategists.taccaseapiservice.dtos.AbstractFieldPresenceAwareDto;
 

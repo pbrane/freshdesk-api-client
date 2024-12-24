@@ -1,15 +1,15 @@
-package com.beaconstrategists.freshdeskapiclient.services.impl;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk.impl;
 
-import com.beaconstrategists.freshdeskapiclient.config.RestClientConfig;
+import com.beaconstrategists.freshdeskapiclient.config.freshdesk.RestClientConfig;
 import com.beaconstrategists.freshdeskapiclient.dtos.freshdesk.*;
-import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
-import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
-import com.beaconstrategists.freshdeskapiclient.model.FreshdeskConversationSource;
-import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
-import com.beaconstrategists.freshdeskapiclient.model.Source;
-import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
-import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
-import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
+import com.beaconstrategists.freshdeskapiclient.mappers.freshdesk.FieldPresenceModelMapper;
+import com.beaconstrategists.freshdeskapiclient.mappers.freshdesk.GenericModelMapper;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.FreshdeskConversationSource;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.PriorityForTickets;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.Source;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.StatusForTickets;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.CompanyService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.SchemaService;
 import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;

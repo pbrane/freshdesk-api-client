@@ -1,6 +1,5 @@
-package com.beaconstrategists.freshdeskapiclient.services;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;

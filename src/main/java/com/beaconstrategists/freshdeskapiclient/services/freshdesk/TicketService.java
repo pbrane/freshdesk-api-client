@@ -1,6 +1,6 @@
-package com.beaconstrategists.freshdeskapiclient.services;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk;
 
-import com.beaconstrategists.freshdeskapiclient.model.Ticket;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.Ticket;
 
 import java.util.List;
 

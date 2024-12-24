@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.config;
+package com.beaconstrategists.freshdeskapiclient.config.freshdesk;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.config;
+package com.beaconstrategists.freshdeskapiclient.config.freshdesk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Qualifier;

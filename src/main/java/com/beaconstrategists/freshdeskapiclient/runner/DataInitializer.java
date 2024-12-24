@@ -1,7 +1,7 @@
 package com.beaconstrategists.freshdeskapiclient.runner;
 
-import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
-import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.CompanyService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.SchemaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;

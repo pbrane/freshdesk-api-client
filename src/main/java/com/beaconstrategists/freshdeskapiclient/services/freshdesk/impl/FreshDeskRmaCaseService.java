@@ -1,11 +1,11 @@
-package com.beaconstrategists.freshdeskapiclient.services.impl;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk.impl;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.beaconstrategists.freshdeskapiclient.dtos.freshdesk.*;
-import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
-import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
-import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
-import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
+import com.beaconstrategists.freshdeskapiclient.mappers.freshdesk.FieldPresenceModelMapper;
+import com.beaconstrategists.freshdeskapiclient.mappers.freshdesk.GenericModelMapper;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.CompanyService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.SchemaService;
 import com.beaconstrategists.taccaseapiservice.dtos.*;
 import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.beaconstrategists.taccaseapiservice.services.RmaCaseService;

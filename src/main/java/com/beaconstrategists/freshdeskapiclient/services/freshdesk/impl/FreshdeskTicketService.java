@@ -1,11 +1,10 @@
-package com.beaconstrategists.freshdeskapiclient.services.impl;
+package com.beaconstrategists.freshdeskapiclient.services.freshdesk.impl;
 
-import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
-import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
-import com.beaconstrategists.freshdeskapiclient.model.Ticket;
-import com.beaconstrategists.freshdeskapiclient.services.CompanyService;
-import com.beaconstrategists.freshdeskapiclient.services.SchemaService;
-import com.beaconstrategists.freshdeskapiclient.services.TicketService;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.PriorityForTickets;
+import com.beaconstrategists.freshdeskapiclient.model.freshdesk.Ticket;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.CompanyService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.SchemaService;
+import com.beaconstrategists.freshdeskapiclient.services.freshdesk.TicketService;
 import com.beaconstrategists.taccaseapiservice.dtos.TacCaseCreateDto;
 import com.beaconstrategists.taccaseapiservice.dtos.TacCaseResponseDto;
 import org.springframework.beans.factory.annotation.Qualifier;
