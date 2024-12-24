@@ -1,13 +1,11 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
 import com.beaconstrategists.freshdeskapiclient.model.Source;
 import com.beaconstrategists.freshdeskapiclient.model.StatusForTickets;
-import com.beaconstrategists.taccaseapiservice.config.api.GenericFieldPresenceSnakeCaseJsonSerializer;
 import com.beaconstrategists.taccaseapiservice.dtos.AbstractFieldPresenceAwareDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
 import java.time.OffsetDateTime;

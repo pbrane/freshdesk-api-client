@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import lombok.Builder;
 import lombok.Value;

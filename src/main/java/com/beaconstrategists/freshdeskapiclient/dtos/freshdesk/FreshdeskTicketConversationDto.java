@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import com.beaconstrategists.freshdeskapiclient.model.FreshdeskConversationSource;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter

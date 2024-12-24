@@ -1,7 +1,7 @@
 package com.beaconstrategists.freshdeskapiclient.services.impl;
 
 import com.beaconstrategists.freshdeskapiclient.config.RestClientConfig;
-import com.beaconstrategists.freshdeskapiclient.dtos.*;
+import com.beaconstrategists.freshdeskapiclient.dtos.freshdesk.*;
 import com.beaconstrategists.freshdeskapiclient.mappers.FieldPresenceModelMapper;
 import com.beaconstrategists.freshdeskapiclient.mappers.GenericModelMapper;
 import com.beaconstrategists.freshdeskapiclient.model.FreshdeskConversationSource;

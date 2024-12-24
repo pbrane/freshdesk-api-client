@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FreshdeskRmaCaseUpdateRequest {
+public class FreshdeskTacCaseUpdateRequest {
 
     private String displayId;
 
@@ -18,9 +18,9 @@ public class FreshdeskRmaCaseUpdateRequest {
 
     //fixme: do we really need this annotation?
     @JsonProperty("data")
-    private FreshdeskRmaCaseUpdateDto data;
+    private FreshdeskTacCaseUpdateDto data;
 
-    public FreshdeskRmaCaseUpdateRequest(FreshdeskRmaCaseUpdateDto data) {
+    public FreshdeskTacCaseUpdateRequest(FreshdeskTacCaseUpdateDto data) {
         this.data = data;
     }
 }

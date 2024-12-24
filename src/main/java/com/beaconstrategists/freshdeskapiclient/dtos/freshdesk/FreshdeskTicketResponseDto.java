@@ -1,4 +1,4 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import com.beaconstrategists.freshdeskapiclient.model.PriorityForTickets;
 import com.beaconstrategists.freshdeskapiclient.model.Source;

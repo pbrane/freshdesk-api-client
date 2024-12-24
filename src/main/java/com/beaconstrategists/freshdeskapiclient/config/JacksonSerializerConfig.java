@@ -1,6 +1,6 @@
 package com.beaconstrategists.freshdeskapiclient.config;
 
-import com.beaconstrategists.freshdeskapiclient.dtos.FreshdeskTicketUpdateDto;
+import com.beaconstrategists.freshdeskapiclient.dtos.freshdesk.FreshdeskTicketUpdateDto;
 import com.beaconstrategists.taccaseapiservice.config.api.GenericFieldPresenceSnakeCaseJsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

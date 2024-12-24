@@ -1,12 +1,8 @@
-package com.beaconstrategists.freshdeskapiclient.dtos;
+package com.beaconstrategists.freshdeskapiclient.dtos.freshdesk;
 
 import com.beaconstrategists.taccaseapiservice.dtos.TacCaseCreateDto;
-import com.beaconstrategists.taccaseapiservice.model.CasePriorityEnum;
-import com.beaconstrategists.taccaseapiservice.model.CaseStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
