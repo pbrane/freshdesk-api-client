@@ -5,4 +5,4 @@
 #Molex Sandbox Ticket 10 and related TAC Case
 curl -v -u $FD_API_KEY:X \
   -H "Content-Type: application/json" \
-  -X GET "$FD_BASE_URI/custom_objects/schemas/10733585/records?ticket=138" |jq > rma_case_for_child_ticket_138.json
+  -X GET "$FD_BASE_URI/custom_objects/schemas/14051436/records" |jq > getTacCases-default_page_size.json

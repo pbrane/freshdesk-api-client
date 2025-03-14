@@ -1,0 +1,64 @@
+{
+  "records": [
+    {
+      "display_id": "_0-201",
+      "created_time": 1741863184670,
+      "updated_time": 1741863184670,
+      "data": {
+        "case_solution_description": "Customer report that span is hard down and optical card Line Tx Port scope test is failed. Need to RMA optical card.",
+        "account_number": null,
+        "rma_needed": true,
+        "ticket": 1753,
+        "case_owner": null,
+        "installation_country": "Mexico",
+        "product_software_version": null,
+        "customer_tracking_number": null,
+        "business_impact": null,
+        "product_name": "400G Function Card",
+        "related_dispatch_count": null,
+        "contact_email": "v-sumanrani@microsoft.com",
+        "faulty_part_number": "1835260023",
+        "faulty_serial_number": "E5800877",
+        "product_serial_number": "E5800877",
+        "product_firmware_version": null,
+        "case_number": "1753",
+        "key": "TAC: 1753"
+      },
+      "version": 1
+    },
+    {
+      "display_id": "_0-200",
+      "created_time": 1741813028344,
+      "updated_time": 1741813028344,
+      "data": {
+        "case_solution_description": null,
+        "account_number": null,
+        "rma_needed": null,
+        "ticket": 1750,
+        "case_owner": null,
+        "installation_country": "Australia",
+        "product_software_version": null,
+        "customer_tracking_number": "606064025",
+        "business_impact": "major",
+        "product_name": "F5741411",
+        "related_dispatch_count": null,
+        "contact_email": "jiankong@microsoft.com",
+        "faulty_part_number": null,
+        "faulty_serial_number": null,
+        "product_serial_number": "F5741411",
+        "product_firmware_version": null,
+        "case_number": null,
+        "key": "TAC:1750; RMA Required -- SCC Card on syd24-bwu232-01omt"
+      },
+      "version": 1
+    }
+  ],
+  "_links": {
+    "next": {
+      "href": "/schemas/14051436/records?page_size=2&next_token=Lbr2zerj3WHNDsZ6FWHqgJkVUMWLJylyFOx2fpbNmsH"
+    },
+    "count": {
+      "href": "/schemas/14051436/records/count"
+    }
+  }
+}

@@ -1,7 +1,12 @@
-#Get Test Ticket 10 from Molex Sandbox
+#Get Test Ticket 101 from Molex Sandbox
+#curl -v -u "$FD_API_KEY":X \
+#-H "Content-Type: application/json" \
+#-X GET "$FD_BASE_URI/tickets/101?include=stats" |jq > ticket-101-stats-molex-sandbox.json
+
+#Get Test Ticket 102 from Molex Sandbox that has child ticket
 curl -v -u "$FD_API_KEY":X \
 -H "Content-Type: application/json" \
--X GET "$FD_BASE_URI/tickets/10" |jq > ticket-10-molex-sandbox.json
+-X GET "$FD_BASE_URI/tickets/102?include=stats" |jq > ticket-102-child-stats-molex-sandbox.json
 
 ##Get Test Ticket 7
 #curl -v -u "$FD_API_KEY":X \

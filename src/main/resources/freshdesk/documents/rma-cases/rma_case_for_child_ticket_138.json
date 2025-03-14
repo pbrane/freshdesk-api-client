@@ -1,0 +1,53 @@
+{
+  "records": [
+    {
+      "display_id": "_3-55",
+      "created_time": 1735564485971,
+      "updated_time": 1735564485971,
+      "data": {
+        "request_type": "MyRequestType, please rush!",
+        "fault_part_shipped_date": null,
+        "installation_country": "DE",
+        "vendor_rma_number": null,
+        "new_part_shipped_date": null,
+        "shipped_to_street1": null,
+        "customer_tracking_number": "REALLYBIGSTRINGOFLETTERSANDNUMBERS",
+        "contact_email": "emily@beaconstrategists.com",
+        "case_created_date": null,
+        "ship_to_postal_code": "12345-9876",
+        "ship_to_province": "CA",
+        "faulty_part_number": "pn-123456",
+        "faulty_serial_number": "abc123zyx987",
+        "ship_to_city": "Los Angeles",
+        "case_number": null,
+        "key": "RMA:138, TAC:137; Happy days, yet another Fiber Connectivity Issue",
+        "problem_description": "Dead as a door knob, knocker, or nail",
+        "faulty_part_delivered_date": null,
+        "ship_to_phone": "555-123-5678",
+        "tac_case": "_2-76",
+        "ticket": 138,
+        "new_part_serial_number": null,
+        "failure_analysis_in_progress_date": null,
+        "failure_analysis_start_date": null,
+        "ship_to_country": "USA",
+        "returned_part_number": null,
+        "new_part_delivery_date_eta": null,
+        "shipped_carrier": "USPS",
+        "ship_to_contact_email": "jimmy@beaconstrategists.com",
+        "case_status": null,
+        "failure_analysis_finished_date": null,
+        "shipped_date": "2024-12-06",
+        "returned_serial_number": null,
+        "ship_to_attention": "Mr. Fix It",
+        "new_part_delivered_date": null,
+        "case_closed_date": null
+      },
+      "version": 1
+    }
+  ],
+  "_links": {
+    "count": {
+      "href": "/schemas/10733585/records/count?ticket=138"
+    }
+  }
+}
