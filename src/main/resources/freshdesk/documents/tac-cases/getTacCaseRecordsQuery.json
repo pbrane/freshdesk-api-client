@@ -1,0 +1,64 @@
+{
+  "records": [
+    {
+      "display_id": "_0-359",
+      "created_time": 1742569434910,
+      "updated_time": 1742569434910,
+      "data": {
+        "case_solution_description": null,
+        "account_number": null,
+        "rma_needed": true,
+        "ticket": 774,
+        "case_owner": null,
+        "installation_country": null,
+        "product_software_version": null,
+        "customer_tracking_number": null,
+        "business_impact": null,
+        "product_name": null,
+        "related_dispatch_count": null,
+        "contact_email": null,
+        "faulty_part_number": null,
+        "faulty_serial_number": null,
+        "product_serial_number": null,
+        "product_firmware_version": null,
+        "case_number": null,
+        "key": "TAC:774"
+      },
+      "version": 1
+    },
+    {
+      "display_id": "_0-358",
+      "created_time": 1742569191550,
+      "updated_time": 1742569191550,
+      "data": {
+        "case_solution_description": null,
+        "account_number": null,
+        "rma_needed": true,
+        "ticket": 772,
+        "case_owner": null,
+        "installation_country": null,
+        "product_software_version": null,
+        "customer_tracking_number": null,
+        "business_impact": null,
+        "product_name": null,
+        "related_dispatch_count": null,
+        "contact_email": null,
+        "faulty_part_number": null,
+        "faulty_serial_number": null,
+        "product_serial_number": null,
+        "product_firmware_version": null,
+        "case_number": null,
+        "key": "TAC:772"
+      },
+      "version": 1
+    }
+  ],
+  "_links": {
+    "next": {
+      "href": "/schemas/14051436/records?page_size=2&created_time%5Bgte%5D=2025-01-01T00:00:00.000Z&created_time%5Blt%5D=2025-04-01T00:00:00.000Z&next_token=Lbr2zerj3WHNDsZ6Fwiq41SLi1o94hpn9fJmlpSMGZp"
+    },
+    "count": {
+      "href": "/schemas/14051436/records/count?created_time%5Bgte%5D=2025-01-01T00:00:00.000Z&created_time%5Blt%5D=2025-04-01T00:00:00.000Z"
+    }
+  }
+}

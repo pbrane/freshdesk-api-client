@@ -1,0 +1,1 @@
+curl -v -u $FD_API_KEY:X -X GET "https://molexhelpsandbox.freshdesk.com/api/v2/admin/ticket_fields" |jq
